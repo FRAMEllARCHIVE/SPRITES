@@ -28,6 +28,7 @@
             width: 250px;
             height: 250px;
             transform: translate(-50%, -50%);
+            transition: top 0.1s, left 0.1s;
         }
         .A {
             background-image: url('spritesheet.png');
@@ -85,7 +86,7 @@
         const player = document.getElementById('player');
         const joypad = document.getElementById('joypad');
         const joypadInner = document.getElementById('joypadInner');
-
+        
         const directions = {
             E: 'A-E',
             I: 'A-I',
@@ -106,17 +107,20 @@
             W: 'A-W'
         };
         const idleFrame = 'A-I';
-
+        
         let posX = 50, posY = 50;
         let direction = 'S';
         let velocityX = 0, velocityY = 0;
         const friction = 0.06;
         const maxSpeed = 0.8;
-
+        
         let joypadCenter = { x: 0, y: 0 };
         let joypadRadius = joypad.offsetWidth / 2;
         let activeInput = false;
         let isIdle = true;
+        
+        let lastUpdateTime = 0;
+        const debounceThreshold = 16;
 
         function updateJoypadCenter() {
             const rect = joypad.getBoundingClientRect();
@@ -138,27 +142,27 @@
             activeInput = true;
         }
 
-function calculateDirectionFromJoystick(angle) {
-    angle = angle * (180 / Math.PI);
-    if (angle < 0) angle += 360;
+        function calculateDirectionFromJoystick(angle) {
+            angle = angle * (180 / Math.PI);
+            if (angle < 0) angle += 360;
 
-    if (angle >= 348.75 || angle < 11.25) direction = 'E';
-    else if (angle >= 11.25 && angle < 33.75) direction = 'SEE';
-    else if (angle >= 33.75 && angle < 56.25) direction = 'SE';
-    else if (angle >= 56.25 && angle < 78.75) direction = 'SSE';
-    else if (angle >= 78.75 && angle < 101.25) direction = 'S';
-    else if (angle >= 101.25 && angle < 123.75) direction = 'SSW';
-    else if (angle >= 123.75 && angle < 146.25) direction = 'SW';
-    else if (angle >= 146.25 && angle < 168.75) direction = 'SWW';
-    else if (angle >= 168.75 && angle < 191.25) direction = 'W';
-    else if (angle >= 191.25 && angle < 213.75) direction = 'NWW';
-    else if (angle >= 213.75 && angle < 236.25) direction = 'NW';
-    else if (angle >= 236.25 && angle < 258.75) direction = 'NNW';
-    else if (angle >= 258.75 && angle < 281.25) direction = 'N';
-    else if (angle >= 281.25 && angle < 303.75) direction = 'NNE';
-    else if (angle >= 303.75 && angle < 326.25) direction = 'NE';
-    else if (angle >= 326.25 && angle < 348.75) direction = 'NEE';
-}
+            if (angle >= 348.75 || angle < 11.25) direction = 'E';
+            else if (angle >= 11.25 && angle < 33.75) direction = 'SEE';
+            else if (angle >= 33.75 && angle < 56.25) direction = 'SE';
+            else if (angle >= 56.25 && angle < 78.75) direction = 'SSE';
+            else if (angle >= 78.75 && angle < 101.25) direction = 'S';
+            else if (angle >= 101.25 && angle < 123.75) direction = 'SSW';
+            else if (angle >= 123.75 && angle < 146.25) direction = 'SW';
+            else if (angle >= 146.25 && angle < 168.75) direction = 'SWW';
+            else if (angle >= 168.75 && angle < 191.25) direction = 'W';
+            else if (angle >= 191.25 && angle < 213.75) direction = 'NWW';
+            else if (angle >= 213.75 && angle < 236.25) direction = 'NW';
+            else if (angle >= 236.25 && angle < 258.75) direction = 'NNW';
+            else if (angle >= 258.75 && angle < 281.25) direction = 'N';
+            else if (angle >= 281.25 && angle < 303.75) direction = 'NNE';
+            else if (angle >= 303.75 && angle < 326.25) direction = 'NE';
+            else if (angle >= 326.25 && angle < 348.75) direction = 'NEE';
+        }
 
         function updateAnimation() {
             const animationClass = isIdle ? idleFrame : directions[direction];
@@ -180,9 +184,39 @@ function calculateDirectionFromJoystick(angle) {
             player.style.left = posX + '%';
             player.style.top = posY + '%';
 
-            isIdle = Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
+            if (Math.abs(velocityX) > 0.01 || Math.abs(velocityY) > 0.01) {
+                isIdle = false;
+            } else {
+                isIdle = true;
+            }
+
             updateAnimation();
-            requestAnimationFrame(updatePosition);
+        }
+
+        function handleGamepadInput() {
+            const gamepads = navigator.getGamepads();
+            if (!gamepads[0]) return;
+
+            const gp = gamepads[0];
+            const threshold = 0.2;
+            const xAxis = gp.axes[0];
+            const yAxis = gp.axes[1];
+
+            if (Math.abs(xAxis) > threshold || Math.abs(yAxis) > threshold) {
+                const angle = Math.atan2(yAxis, xAxis);
+                velocityX = Math.cos(angle) * maxSpeed;
+                velocityY = Math.sin(angle) * maxSpeed;
+                calculateDirectionFromJoystick(angle);
+                activeInput = true;
+            } else {
+                activeInput = false;
+            }
+        }
+
+        function gameLoop() {
+            updatePosition();
+            handleGamepadInput();
+            requestAnimationFrame(gameLoop);
         }
 
         joypad.addEventListener('mousedown', (e) => {
@@ -201,13 +235,17 @@ function calculateDirectionFromJoystick(angle) {
             window.addEventListener('touchend', onEnd);
         });
 
-        function onMove(e) {
-            const clientX = e.clientX || e.touches[0].clientX;
-            const clientY = e.clientY || e.touches[0].clientY;
-            moveJoypadInner(clientX, clientY);
-        }
+        const onMove = (e) => {
+            const currentTime = Date.now();
+            if (currentTime - lastUpdateTime > debounceThreshold) {
+                const clientX = e.clientX || e.touches[0].clientX;
+                const clientY = e.clientY || e.touches[0].clientY;
+                moveJoypadInner(clientX, clientY);
+                lastUpdateTime = currentTime;
+            }
+        };
 
-        function onEnd() {
+        const onEnd = () => {
             activeInput = false;
             joypadInner.style.left = `${joypadRadius - joypadInner.offsetWidth / 2}px`;
             joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
@@ -215,32 +253,11 @@ function calculateDirectionFromJoystick(angle) {
             window.removeEventListener('mouseup', onEnd);
             window.removeEventListener('touchmove', onMove);
             window.removeEventListener('touchend', onEnd);
-        }
-
-        function handleGamepadInput() {
-            const gamepads = navigator.getGamepads();
-            if (gamepads[0]) {
-                const gp = gamepads[0];
-                const threshold = 0.2;
-                const xAxis = gp.axes[0];
-                const yAxis = gp.axes[1];
-
-                if (Math.abs(xAxis) > threshold || Math.abs(yAxis) > threshold) {
-                    const angle = Math.atan2(yAxis, xAxis);
-                    velocityX = Math.cos(angle) * maxSpeed;
-                    velocityY = Math.sin(angle) * maxSpeed;
-                    calculateDirectionFromJoystick(angle);
-                    activeInput = true;
-                } else {
-                    activeInput = false;
-                }
-            }
-            requestAnimationFrame(handleGamepadInput);
-        }
+        };
 
         window.addEventListener('gamepadconnected', handleGamepadInput);
 
-        requestAnimationFrame(updatePosition);
+        requestAnimationFrame(gameLoop);
     </script>
 </body>
 </html>
