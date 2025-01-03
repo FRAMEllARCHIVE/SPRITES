@@ -25,8 +25,8 @@
         }
         #player {
             position: absolute;
-            width: 5%;
-            height: auto;
+            width: 64px; /* Width of each frame */
+            height: 64px; /* Height of each frame */
             transition: opacity 0.1s ease-in-out;
             transform: translate(-50%, -50%);
         }
@@ -54,7 +54,7 @@
 </head>
 <body>
     <div id="gameArea">
-        <img id="player" src="images/N/0.png" alt="player" />
+        <div id="player"></div>
     </div>
     <div id="joypad">
         <div id="joypadInner"></div>
@@ -66,27 +66,30 @@
         const joypad = document.getElementById('joypad');
         const joypadInner = document.getElementById('joypadInner');
 
-const directions = {
-    N: ["images/N/0.png", "images/N/1.png", "images/N/2.png"],
-    NNE: ["images/NNE/0.png", "images/NNE/1.png", "images/NNE/2.png"],
-    NE: ["images/NE/0.png", "images/NE/1.png", "images/NE/2.png"],
-    NEE: ["images/NEE/0.png", "images/NEE/1.png", "images/NEE/2.png"],
-    E: ["images/E/0.png", "images/E/1.png", "images/E/2.png"],
-    SEE: ["images/SEE/0.png", "images/SEE/1.png", "images/SEE/2.png"],
-    SE: ["images/SE/0.png", "images/SE/1.png", "images/SE/2.png"],
-    SSE: ["images/SSE/0.png", "images/SSE/1.png", "images/SSE/2.png"],
-    S: ["images/S/0.png", "images/S/1.png", "images/S/2.png"],
-    SSW: ["images/SSW/0.png", "images/SSW/1.png", "images/SSW/2.png"],
-    SW: ["images/SW/0.png", "images/SW/1.png", "images/SW/2.png"],
-    SWW: ["images/SWW/0.png", "images/SWW/1.png", "images/SWW/2.png"],
-    W: ["images/W/0.png", "images/W/1.png", "images/W/2.png"],
-    NWW: ["images/NWW/0.png", "images/NWW/1.png", "images/NWW/2.png"],
-    NW: ["images/NW/0.png", "images/NW/1.png", "images/NW/2.png"],
-    NNW: ["images/NNW/0.png", "images/NNW/1.png", "images/NNW/2.png"]
-};
+        const spriteSheet = 'images/spriteSheet.png';
+        const frameWidth = 64;
+        const frameHeight = 64;
 
-const idleFrames = ["images/I/0.png", "images/I/1.png", "images/I/2.png"];
+        const directions = {
+            N: { row: 0, frames: 3 },
+            NNE: { row: 1, frames: 3 },
+            NE: { row: 2, frames: 3 },
+            NEE: { row: 3, frames: 3 },
+            E: { row: 4, frames: 3 },
+            SEE: { row: 5, frames: 3 },
+            SE: { row: 6, frames: 3 },
+            SSE: { row: 7, frames: 3 },
+            S: { row: 8, frames: 3 },
+            SSE: { row: 9, frames: 3 },
+            SW: { row: 10, frames: 3 },
+            SWW: { row: 11, frames: 3 },
+            W: { row: 12, frames: 3 },
+            NWW: { row: 13, frames: 3 },
+            NW: { row: 14, frames: 3 },
+            NNW: { row: 15, frames: 3 }
+        };
 
+        const idleFrames = { row: 16, frames: 3 };
 
         let posX = 50, posY = 50;
         let direction = 'S';
@@ -126,30 +129,27 @@ const idleFrames = ["images/I/0.png", "images/I/1.png", "images/I/2.png"];
             activeInput = true;
         }
 
-function calculateDirectionFromJoystick(angle) {
-    angle = angle * (180 / Math.PI);  // Convert angle from radians to degrees
-    if (angle < 0) angle += 360;  // Ensure the angle is within 0-360 degrees
+        function calculateDirectionFromJoystick(angle) {
+            angle = angle * (180 / Math.PI);
+            if (angle < 0) angle += 360;
 
-    if (angle >= 348.75 || angle < 11.25) direction = 'E';  
-    else if (angle >= 11.25 && angle < 33.75) direction = 'SEE';  
-    else if (angle >= 33.75 && angle < 56.25) direction = 'SE';  
-    else if (angle >= 56.25 && angle < 78.75) direction = 'SSE';  
-    else if (angle >= 78.75 && angle < 101.25) direction = 'S';  
-    else if (angle >= 101.25 && angle < 123.75) direction = 'SSW';  
-    else if (angle >= 123.75 && angle < 146.25) direction = 'SW';  
-    else if (angle >= 146.25 && angle < 168.75) direction = 'SWW';  
-    else if (angle >= 168.75 && angle < 191.25) direction = 'W';  
-    else if (angle >= 191.25 && angle < 213.75) direction = 'NWW';  
-    else if (angle >= 213.75 && angle < 236.25) direction = 'NW';  
-    else if (angle >= 236.25 && angle < 258.75) direction = 'NNW';  
-    else if (angle >= 258.75 && angle < 281.25) direction = 'N';  
-    else if (angle >= 281.25 && angle < 303.75) direction = 'NNE';  
-    else if (angle >= 303.75 && angle < 326.25) direction = 'NE';  
-    else if (angle >= 326.25 && angle < 348.75) direction = 'NEE';  
-}
-
-
-
+            if (angle >= 348.75 || angle < 11.25) direction = 'E';  
+            else if (angle >= 11.25 && angle < 33.75) direction = 'SEE';  
+            else if (angle >= 33.75 && angle < 56.25) direction = 'SE';  
+            else if (angle >= 56.25 && angle < 78.75) direction = 'SSE';  
+            else if (angle >= 78.75 && angle < 101.25) direction = 'S';  
+            else if (angle >= 101.25 && angle < 123.75) direction = 'SSW';  
+            else if (angle >= 123.75 && angle < 146.25) direction = 'SW';  
+            else if (angle >= 146.25 && angle < 168.75) direction = 'SWW';  
+            else if (angle >= 168.75 && angle < 191.25) direction = 'W';  
+            else if (angle >= 191.25 && angle < 213.75) direction = 'NWW';  
+            else if (angle >= 213.75 && angle < 236.25) direction = 'NW';  
+            else if (angle >= 236.25 && angle < 258.75) direction = 'NNW';  
+            else if (angle >= 258.75 && angle < 281.25) direction = 'N';  
+            else if (angle >= 281.25 && angle < 303.75) direction = 'NNE';  
+            else if (angle >= 303.75 && angle < 326.25) direction = 'NE';  
+            else if (angle >= 326.25 && angle < 348.75) direction = 'NEE';  
+        }
 
         joypad.addEventListener('mousedown', (e) => {
             e.preventDefault();
@@ -212,64 +212,14 @@ function calculateDirectionFromJoystick(angle) {
             }
         }
 
-        window.addEventListener("gamepadconnected", (event) => {
-            console.log("Gamepad connected:", event.gamepad);
-            gamepadIndex = event.gamepad.index;
-        });
-
-        window.addEventListener("gamepaddisconnected", (event) => {
-            console.log("Gamepad disconnected:", event.gamepad);
-            if (gamepadIndex === event.gamepad.index) {
-                gamepadIndex = null;
-            }
-        });
-
-function initializeGamepad() {
-    const gamepads = navigator.getGamepads();
-    for (let i = 0; i < gamepads.length; i++) {
-        if (gamepads[i]) {
-            gamepadIndex = i;
-            console.log("Gamepad detected on load:", gamepads[i]);
-            break;
-        }
-    }
-}
-
-initializeGamepad();
-
-        function updateGamepad() {
-            if (gamepadIndex !== null) {
-                const gamepad = navigator.getGamepads()[gamepadIndex];
-                if (gamepad) {
-                    const xAxis = gamepad.axes[0]; // Left stick X-axis
-                    const yAxis = gamepad.axes[1]; // Left stick Y-axis
-                    const threshold = 0.1;
-
-                    if (Math.abs(xAxis) > threshold || Math.abs(yAxis) > threshold) {
-                        velocityX = xAxis * maxSpeed;
-                        velocityY = yAxis * maxSpeed;
-                        const angle = Math.atan2(yAxis, xAxis);
-                        calculateDirectionFromJoystick(angle);
-                        activeInput = true;
-                    } else {
-                        activeInput = false;
-                    }
-                }
-            }
-            requestAnimationFrame(updateGamepad);
-        }
-
         function updateAnimation(currentTime) {
-            if (currentTime - lastFrameTime > frameDuration) {
-                if (isIdle) {
-                    frameIndex = (frameIndex + 1) % idleFrames.length;
-                    player.src = idleFrames[frameIndex];
-                } else {
-                    frameIndex = (frameIndex + 1) % directions[direction].length;
-                    player.src = directions[direction][frameIndex];
-                }
-                lastFrameTime = currentTime;
-            }
+            const frame = isIdle ? idleFrames : directions[direction];
+            frameIndex = Math.floor((currentTime / frameDuration) % frame.frames);
+
+            player.style.backgroundImage = `url(${spriteSheet})`;
+            player.style.backgroundPosition = `-${frameIndex * frameWidth}px -${frame.row * frameHeight}px`;
+            player.style.width = `${frameWidth}px`;
+            player.style.height = `${frameHeight}px`;
         }
 
         function updatePosition(currentTime) {
@@ -294,8 +244,6 @@ initializeGamepad();
         }
 
         requestAnimationFrame(updatePosition);
-        requestAnimationFrame(updateGamepad);
     </script>
 </body>
 </html>
-
