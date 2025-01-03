@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directional Animation Controller</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+            position: relative;
+            user-select: none;
+        }
+        #gameArea {
+            position: relative;
+            width: 82vmin;
+            height: 82vmin;
+            background-color: #ddd;
+            border-radius: 3vh;
+            overflow: hidden;
+        }
+        #player {
+            position: absolute;
+            width: 250px;
+            height: 250px;
+            transform: translate(-50%, -50%);
+            background-image: url('spritesheet.png');
+            background-repeat: no-repeat;
+        }
+        #joypad {
+            position: absolute;
+            bottom: 10%;
+            right: 10%;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #joypadInner {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            position: absolute;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div id="player"></div>
+    </div>
+    <div id="joypad">
+        <div id="joypadInner"></div>
+    </div>
+
+    <script>
+        const player = document.getElementById('player');
+        const joypad = document.getElementById('joypad');
+        const joypadInner = document.getElementById('joypadInner');
+
+        const frameWidth = 250;
+        const frameHeight = 250;
+        const directions = {
+            E: { row: 0, col: 0 },
+            I: { row: 0, col: 1 },
+            N: { row: 0, col: 2 },
+            NE: { row: 1, col: 0 },
+            NW: { row: 1, col: 1 },
+            S: { row: 1, col: 2 },
+            SE: { row: 2, col: 0 },
+            SW: { row: 2, col: 1 },
+            W: { row: 2, col: 2 }
+        };
+        const idleFrame = { row: 0, col: 1 };
+
+        let posX = 50, posY = 50;
+        let direction = 'S';
+        let velocityX = 0, velocityY = 0;
+        const friction = 0.06;
+        const maxSpeed = 0.8;
+
+        let joypadCenter = { x: 0, y: 0 };
+        let joypadRadius = joypad.offsetWidth / 2;
+        let activeInput = false;
+        let isIdle = true;
+
+        function updateJoypadCenter() {
+            const rect = joypad.getBoundingClientRect();
+            joypadCenter.x = rect.left + joypad.offsetWidth / 2;
+            joypadCenter.y = rect.top + joypad.offsetHeight / 2;
+        }
+
+        function moveJoypadInner(x, y) {
+            const dx = x - joypadCenter.x;
+            const dy = y - joypadCenter.y;
+            const distance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
+            const angle = Math.atan2(dy, dx);
+            joypadInner.style.left = `${Math.cos(angle) * distance + joypadRadius - joypadInner.offsetWidth / 2}px`;
+            joypadInner.style.top = `${Math.sin(angle) * distance + joypadRadius - joypadInner.offsetHeight / 2}px`;
+
+            velocityX = Math.cos(angle) * Math.min(distance / joypadRadius, 1) * maxSpeed;
+            velocityY = Math.sin(angle) * Math.min(distance / joypadRadius, 1) * maxSpeed;
+            calculateDirectionFromJoystick(angle);
+            activeInput = true;
+        }
+
+        function calculateDirectionFromJoystick(angle) {
+            angle = angle * (180 / Math.PI);
+            if (angle < 0) angle += 360;
+
+            if (angle >= 337.5 || angle < 22.5) direction = 'E';
+            else if (angle >= 22.5 && angle < 67.5) direction = 'SE';
+            else if (angle >= 67.5 && angle < 112.5) direction = 'S';
+            else if (angle >= 112.5 && angle < 157.5) direction = 'SW';
+            else if (angle >= 157.5 && angle < 202.5) direction = 'W';
+            else if (angle >= 202.5 && angle < 247.5) direction = 'NW';
+            else if (angle >= 247.5 && angle < 292.5) direction = 'N';
+            else if (angle >= 292.5 && angle < 337.5) direction = 'NE';
+        }
+
+        function updateAnimation() {
+            const frame = isIdle ? idleFrame : directions[direction];
+            player.style.backgroundPosition = `-${frame.col * frameWidth}px -${frame.row * frameHeight}px`;
+        }
+
+        function updatePosition() {
+            if (!activeInput) {
+                velocityX *= (1 - friction);
+                velocityY *= (1 - friction);
+            }
+
+            posX += velocityX;
+            posY += velocityY;
+
+            posX = Math.max(0, Math.min(100, posX));
+            posY = Math.max(0, Math.min(100, posY));
+
+            player.style.left = posX + '%';
+            player.style.top = posY + '%';
+
+            isIdle = Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
+            updateAnimation();
+            requestAnimationFrame(updatePosition);
+        }
+
+        joypad.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            updateJoypadCenter();
+            moveJoypadInner(e.clientX, e.clientY);
+            window.addEventListener('mousemove', onMove);
+            window.addEventListener('mouseup', onEnd);
+        });
+
+        joypad.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            updateJoypadCenter();
+            moveJoypadInner(e.touches[0].clientX, e.touches[0].clientY);
+            window.addEventListener('touchmove', onMove);
+            window.addEventListener('touchend', onEnd);
+        });
+
+        function onMove(e) {
+            const clientX = e.clientX || e.touches[0].clientX;
+            const clientY = e.clientY || e.touches[0].clientY;
+            moveJoypadInner(clientX, clientY);
+        }
+
+        function onEnd() {
+            activeInput = false;
+            joypadInner.style.left = `${joypadRadius - joypadInner.offsetWidth / 2}px`;
+            joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onEnd);
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend', onEnd);
+        }
+
+        function handleGamepadInput() {
+            const gamepads = navigator.getGamepads();
+            if (gamepads[0]) {
+                const gp = gamepads[0];
+                const threshold = 0.2;
+                const xAxis = gp.axes[0];
+                const yAxis = gp.axes[1];
+
+                if (Math.abs(xAxis) > threshold || Math.abs(yAxis) > threshold) {
+                    const angle = Math.atan2(yAxis, xAxis);
+                    velocityX = Math.cos(angle) * maxSpeed;
+                    velocityY = Math.sin(angle) * maxSpeed;
+                    calculateDirectionFromJoystick(angle);
+                    activeInput = true;
+                } else {
+                    activeInput = false;
+                }
+            }
+            requestAnimationFrame(handleGamepadInput);
+        }
+
+        window.addEventListener('gamepadconnected', handleGamepadInput);
+
+        requestAnimationFrame(updatePosition);
+    </script>
+</body>
+</html>
