@@ -25,17 +25,18 @@
         }
         #player {
             position: absolute;
-            width: 64px;
-            height: 64px;
-            transition: opacity 0.1s ease-in-out;
+            width: 250px;
+            height: 250px;
             transform: translate(-50%, -50%);
+            background-image: url('spritesheet.png');
+            background-repeat: no-repeat;
         }
         #joypad {
             position: absolute;
             bottom: 10%;
             right: 10%;
-            width: 33px;
-            height: 33px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background-color: rgba(0, 0, 0, 0.5);
             display: flex;
@@ -62,52 +63,34 @@
 
     <script>
         const player = document.getElementById('player');
-        const gameArea = document.getElementById('gameArea');
         const joypad = document.getElementById('joypad');
         const joypadInner = document.getElementById('joypadInner');
 
-        const spriteSheet = 'spriteSheet1.webp';
-        const frameWidth = 64;
-        const frameHeight = 64;
-
+        const frameWidth = 250;
+        const frameHeight = 250;
         const directions = {
-            N: { row: 0, frames: 3 },
-            NNE: { row: 1, frames: 3 },
-            NE: { row: 2, frames: 3 },
-            NEE: { row: 3, frames: 3 },
-            E: { row: 4, frames: 3 },
-            SEE: { row: 5, frames: 3 },
-            SE: { row: 6, frames: 3 },
-            SSE: { row: 7, frames: 3 },
-            S: { row: 8, frames: 3 },
-            SSE: { row: 9, frames: 3 },
-            SW: { row: 10, frames: 3 },
-            SWW: { row: 11, frames: 3 },
-            W: { row: 12, frames: 3 },
-            NWW: { row: 13, frames: 3 },
-            NW: { row: 14, frames: 3 },
-            NNW: { row: 15, frames: 3 }
+            E: { row: 0, col: 0 },
+            I: { row: 0, col: 1 },
+            N: { row: 0, col: 2 },
+            NE: { row: 1, col: 0 },
+            NW: { row: 1, col: 1 },
+            S: { row: 1, col: 2 },
+            SE: { row: 2, col: 0 },
+            SW: { row: 2, col: 1 },
+            W: { row: 2, col: 2 }
         };
-
-        const idleFrames = { row: 16, frames: 3 };
+        const idleFrame = { row: 0, col: 1 }; // Default idle frame
 
         let posX = 50, posY = 50;
-        let direction = 'S';
-        let frameIndex = 0;
+        let direction = 'S'; // Default direction
         let velocityX = 0, velocityY = 0;
         const friction = 0.06;
         const maxSpeed = 0.8;
-        const maxFrameRate = 10;
-        let lastFrameTime = 0;
-        let frameDuration = 1000 / maxFrameRate;
 
         let joypadCenter = { x: 0, y: 0 };
         let joypadRadius = joypad.offsetWidth / 2;
         let activeInput = false;
         let isIdle = true;
-
-        const keysPressed = {};
-        let gamepadIndex = null;
 
         function updateJoypadCenter() {
             const rect = joypad.getBoundingClientRect();
@@ -133,22 +116,39 @@
             angle = angle * (180 / Math.PI);
             if (angle < 0) angle += 360;
 
-            if (angle >= 348.75 || angle < 11.25) direction = 'E';  
-            else if (angle >= 11.25 && angle < 33.75) direction = 'SEE';  
-            else if (angle >= 33.75 && angle < 56.25) direction = 'SE';  
-            else if (angle >= 56.25 && angle < 78.75) direction = 'SSE';  
-            else if (angle >= 78.75 && angle < 101.25) direction = 'S';  
-            else if (angle >= 101.25 && angle < 123.75) direction = 'SSW';  
-            else if (angle >= 123.75 && angle < 146.25) direction = 'SW';  
-            else if (angle >= 146.25 && angle < 168.75) direction = 'SWW';  
-            else if (angle >= 168.75 && angle < 191.25) direction = 'W';  
-            else if (angle >= 191.25 && angle < 213.75) direction = 'NWW';  
-            else if (angle >= 213.75 && angle < 236.25) direction = 'NW';  
-            else if (angle >= 236.25 && angle < 258.75) direction = 'NNW';  
-            else if (angle >= 258.75 && angle < 281.25) direction = 'N';  
-            else if (angle >= 281.25 && angle < 303.75) direction = 'NNE';  
-            else if (angle >= 303.75 && angle < 326.25) direction = 'NE';  
-            else if (angle >= 326.25 && angle < 348.75) direction = 'NEE';  
+            if (angle >= 337.5 || angle < 22.5) direction = 'E';
+            else if (angle >= 22.5 && angle < 67.5) direction = 'SE';
+            else if (angle >= 67.5 && angle < 112.5) direction = 'S';
+            else if (angle >= 112.5 && angle < 157.5) direction = 'SW';
+            else if (angle >= 157.5 && angle < 202.5) direction = 'W';
+            else if (angle >= 202.5 && angle < 247.5) direction = 'NW';
+            else if (angle >= 247.5 && angle < 292.5) direction = 'N';
+            else if (angle >= 292.5 && angle < 337.5) direction = 'NE';
+        }
+
+        function updateAnimation() {
+            const frame = isIdle ? idleFrame : directions[direction];
+            player.style.backgroundPosition = `-${frame.col * frameWidth}px -${frame.row * frameHeight}px`;
+        }
+
+        function updatePosition() {
+            if (!activeInput) {
+                velocityX *= (1 - friction);
+                velocityY *= (1 - friction);
+            }
+
+            posX += velocityX;
+            posY += velocityY;
+
+            posX = Math.max(0, Math.min(100, posX));
+            posY = Math.max(0, Math.min(100, posY));
+
+            player.style.left = posX + '%';
+            player.style.top = posY + '%';
+
+            isIdle = Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
+            updateAnimation();
+            requestAnimationFrame(updatePosition);
         }
 
         joypad.addEventListener('mousedown', (e) => {
@@ -181,66 +181,6 @@
             window.removeEventListener('mouseup', onEnd);
             window.removeEventListener('touchmove', onMove);
             window.removeEventListener('touchend', onEnd);
-        }
-
-        document.addEventListener('keydown', (e) => {
-            keysPressed[e.key.toLowerCase()] = true;
-            updateVelocityFromKeys();
-        });
-
-        document.addEventListener('keyup', (e) => {
-            keysPressed[e.key.toLowerCase()] = false;
-            updateVelocityFromKeys();
-        });
-
-        function updateVelocityFromKeys() {
-            let dx = 0, dy = 0;
-
-            if (keysPressed['w']) dy -= 1;
-            if (keysPressed['s']) dy += 1;
-            if (keysPressed['a']) dx -= 1;
-            if (keysPressed['d']) dx += 1;
-
-            if (dx !== 0 || dy !== 0) {
-                const angle = Math.atan2(dy, dx);
-                velocityX = Math.cos(angle) * maxSpeed;
-                velocityY = Math.sin(angle) * maxSpeed;
-                calculateDirectionFromJoystick(angle);
-                activeInput = true;
-            } else {
-                activeInput = false;
-            }
-        }
-
-        function updateAnimation(currentTime) {
-            const frame = isIdle ? idleFrames : directions[direction];
-            frameIndex = Math.floor((currentTime / frameDuration) % frame.frames);
-
-            player.style.backgroundImage = `url(${spriteSheet})`;
-            player.style.backgroundPosition = `-${frameIndex * frameWidth}px -${frame.row * frameHeight}px`;
-            player.style.width = `${frameWidth}px`;
-            player.style.height = `${frameHeight}px`;
-        }
-
-        function updatePosition(currentTime) {
-            if (!activeInput) {
-                velocityX *= (1 - friction);
-                velocityY *= (1 - friction);
-            }
-
-            posX += velocityX;
-            posY += velocityY;
-
-            posX = Math.max(0, Math.min(100, posX));
-            posY = Math.max(0, Math.min(100, posY));
-
-            player.style.left = posX + '%';
-            player.style.top = posY + '%';
-
-            isIdle = Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
-
-            updateAnimation(currentTime);
-            requestAnimationFrame(updatePosition);
         }
 
         requestAnimationFrame(updatePosition);
