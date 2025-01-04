@@ -231,7 +231,7 @@
         player.style.left = posX + '%';
         player.style.top = posY + '%';
 
-        isIdle = Math.abs(velocityX) < 0.001 && Math.abs(velocityY) < 0.001;
+        isIdle = Math.abs(velocityX) < 0.02 && Math.abs(velocityY) < 0.02;
         updateAnimation();
     }
 
