@@ -25,8 +25,8 @@
         }
         #player {
             position: absolute;
-            width: 200px;
-            height: 200px;
+            width: 100px;
+            height: 100px;
             transform: translate(-50%, -50%);
             transition: top 0.1s, left 0.1s;
         }
@@ -35,8 +35,6 @@
             background-repeat: no-repeat;
             display: block;
         }
-
-        /* Add the full list of updated frame classes here */
         .SSW1 { background-position: -200px -0px; }
         .SSW2 { background-position: -200px -100px; }
         .SSW3 { background-position: -200px -200px; }
@@ -68,7 +66,6 @@
         .S2 { background-position: -100px -100px; }
         .S3 { background-position: -100px -200px; }
         .idleFrame { background-position: -0px -0px; }
-
         #joypad {
             position: absolute;
             bottom: 10%;
@@ -98,25 +95,11 @@
     <div id="joypad">
         <div id="joypadInner"></div>
     </div>
-
     <script>
         const player = document.getElementById('player');
         const joypad = document.getElementById('joypad');
         const joypadInner = document.getElementById('joypadInner');
-
-        const directions = {
-            SSW: 'SSW',
-            SW: 'SW',
-            W: 'W',
-            NW: 'NW',
-            N: 'N',
-            NE: 'NE',
-            E: 'E',
-            SEE: 'SEE',
-            SE: 'SE',
-            S: 'S'
-        };
-        
+        const directions = { SSW: 'SSW', SW: 'SW', W: 'W', NW: 'NW', N: 'N', NE: 'NE', E: 'E', SEE: 'SEE', SE: 'SE', S: 'S' };
         const idleFrame = 'idleFrame';
         let posX = 50, posY = 50;
         let direction = 'S';
@@ -124,7 +107,7 @@
         const friction = 0.06;
         const maxSpeed = 0.8;
         let animationFrame = 1;
-        const maxFrames = 3; // Total animation frames per direction
+        const maxFrames = 3;
         let joypadCenter = { x: 0, y: 0 };
         let joypadRadius = joypad.offsetWidth / 2;
         let activeInput = false;
@@ -143,7 +126,6 @@
             const angle = Math.atan2(dy, dx);
             joypadInner.style.left = `${Math.cos(angle) * distance + joypadRadius - joypadInner.offsetWidth / 2}px`;
             joypadInner.style.top = `${Math.sin(angle) * distance + joypadRadius - joypadInner.offsetHeight / 2}px`;
-
             velocityX = Math.cos(angle) * Math.min(distance / joypadRadius, 1) * maxSpeed;
             velocityY = Math.sin(angle) * Math.min(distance / joypadRadius, 1) * maxSpeed;
             calculateDirectionFromJoystick(angle);
@@ -152,7 +134,6 @@
 
         function calculateDirectionFromJoystick(angle) {
             const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
-
             if (angleDeg < 22.5 || angleDeg >= 337.5) direction = 'E';
             else if (angleDeg >= 22.5 && angleDeg < 67.5) direction = 'SEE';
             else if (angleDeg >= 67.5 && angleDeg < 112.5) direction = 'SE';
@@ -177,16 +158,12 @@
                 velocityX *= (1 - friction);
                 velocityY *= (1 - friction);
             }
-
             posX += velocityX;
             posY += velocityY;
-
             posX = Math.max(0, Math.min(100, posX));
             posY = Math.max(0, Math.min(100, posY));
-
             player.style.left = posX + '%';
             player.style.top = posY + '%';
-
             isIdle = Math.abs(velocityX) <= 0.01 && Math.abs(velocityY) <= 0.01;
             updateAnimation();
         }
