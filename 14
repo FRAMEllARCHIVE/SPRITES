@@ -110,7 +110,7 @@
 </head>
 <body>
     <div id="gameArea">
-        <div id="player" class="A idle1"></div>
+        <div id="player" class="A"></div>
     </div>
     <div id="joypad">
         <div id="joypadInner"></div>
