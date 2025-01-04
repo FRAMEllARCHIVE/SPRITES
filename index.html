@@ -228,7 +228,7 @@ function calculateDirectionFromJoystick(angle) {
             player.style.left = posX + '%';
             player.style.top = posY + '%';
 
-            isIdle = Math.abs(velocityX) < 0.1 && Math.abs(velocityY) < 0.1;
+            isIdle = Math.abs(velocityX) < 0.001 && Math.abs(velocityY) < 0.001;
             updateAnimation();
         }
 
