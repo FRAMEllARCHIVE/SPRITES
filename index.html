@@ -25,8 +25,8 @@
         }
         #player {
             position: absolute;
-            width: 250px;
-            height: 250px;
+            width: 200px;
+            height: 200px;
             transform: translate(-50%, -50%);
             transition: top 0.1s, left 0.1s;
         }
@@ -35,23 +35,40 @@
             background-repeat: no-repeat;
             display: block;
         }
-        .A-E { background-position: 0 0; }
-        .A-I { background-position: -250px 0; }
-        .A-N { background-position: -500px 0; }
-        .A-NE { background-position: -750px 0; }
-        .A-NEE { background-position: -1000px 0; }
-        .A-NNE { background-position: -1250px 0; }
-        .A-NNW { background-position: -1500px 0; }
-        .A-NW { background-position: -1750px 0; }
-        .A-NWW { background-position: -2000px 0; }
-        .A-S { background-position: -2250px 0; }
-        .A-SE { background-position: -2500px 0; }
-        .A-SEE { background-position: -2750px 0; }
-        .A-SSE { background-position: -3000px 0; }
-        .A-SSW { background-position: -3250px 0; }
-        .A-SW { background-position: -3500px 0; }
-        .A-SWW { background-position: -3750px 0; }
-        .A-W { background-position: -4000px 0; }
+
+        /* Add the full list of updated frame classes here */
+        .SSW1 { background-position: -200px -0px; }
+        .SSW2 { background-position: -200px -100px; }
+        .SSW3 { background-position: -200px -200px; }
+        .SW1 { background-position: -300px -0px; }
+        .SW2 { background-position: -300px -100px; }
+        .SW3 { background-position: -300px -200px; }
+        .W1 { background-position: -500px -0px; }
+        .W2 { background-position: -500px -100px; }
+        .W3 { background-position: -500px -200px; }
+        .NW1 { background-position: -700px -0px; }
+        .NW2 { background-position: -700px -100px; }
+        .NW3 { background-position: -700px -200px; }
+        .N1 { background-position: -900px -0px; }
+        .N2 { background-position: -900px -100px; }
+        .N3 { background-position: -900px -200px; }
+        .NE1 { background-position: -1100px -0px; }
+        .NE2 { background-position: -1100px -100px; }
+        .NE3 { background-position: -1100px -200px; }
+        .E1 { background-position: -1300px -0px; }
+        .E2 { background-position: -1300px -100px; }
+        .E3 { background-position: -1300px -200px; }
+        .SEE1 { background-position: -1400px -0px; }
+        .SEE2 { background-position: -1400px -100px; }
+        .SEE3 { background-position: -1400px -200px; }
+        .SE1 { background-position: -1500px -0px; }
+        .SE2 { background-position: -1500px -100px; }
+        .SE3 { background-position: -1500px -200px; }
+        .S1 { background-position: -100px -0px; }
+        .S2 { background-position: -100px -100px; }
+        .S3 { background-position: -100px -200px; }
+        .idleFrame { background-position: -0px -0px; }
+
         #joypad {
             position: absolute;
             bottom: 10%;
@@ -76,7 +93,7 @@
 </head>
 <body>
     <div id="gameArea">
-        <div id="player" class="A A-I"></div>
+        <div id="player" class="A idleFrame"></div>
     </div>
     <div id="joypad">
         <div id="joypadInner"></div>
@@ -86,41 +103,32 @@
         const player = document.getElementById('player');
         const joypad = document.getElementById('joypad');
         const joypadInner = document.getElementById('joypadInner');
-        
+
         const directions = {
-            E: 'A-E',
-            I: 'A-I',
-            N: 'A-N',
-            NE: 'A-NE',
-            NEE: 'A-NEE',
-            NNE: 'A-NNE',
-            NNW: 'A-NNW',
-            NW: 'A-NW',
-            NWW: 'A-NWW',
-            S: 'A-S',
-            SE: 'A-SE',
-            SEE: 'A-SEE',
-            SSE: 'A-SSE',
-            SSW: 'A-SSW',
-            SW: 'A-SW',
-            SWW: 'A-SWW',
-            W: 'A-W'
+            SSW: 'SSW',
+            SW: 'SW',
+            W: 'W',
+            NW: 'NW',
+            N: 'N',
+            NE: 'NE',
+            E: 'E',
+            SEE: 'SEE',
+            SE: 'SE',
+            S: 'S'
         };
-        const idleFrame = 'A-I';
         
+        const idleFrame = 'idleFrame';
         let posX = 50, posY = 50;
         let direction = 'S';
         let velocityX = 0, velocityY = 0;
         const friction = 0.06;
         const maxSpeed = 0.8;
-        
+        let animationFrame = 1;
+        const maxFrames = 3; // Total animation frames per direction
         let joypadCenter = { x: 0, y: 0 };
         let joypadRadius = joypad.offsetWidth / 2;
         let activeInput = false;
         let isIdle = true;
-        
-        let lastUpdateTime = 0;
-        const debounceThreshold = 16;
 
         function updateJoypadCenter() {
             const rect = joypad.getBoundingClientRect();
@@ -143,30 +151,25 @@
         }
 
         function calculateDirectionFromJoystick(angle) {
-            angle = angle * (180 / Math.PI);
-            if (angle < 0) angle += 360;
+            const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
 
-            if (angle >= 348.75 || angle < 11.25) direction = 'E';
-            else if (angle >= 11.25 && angle < 33.75) direction = 'SEE';
-            else if (angle >= 33.75 && angle < 56.25) direction = 'SE';
-            else if (angle >= 56.25 && angle < 78.75) direction = 'SSE';
-            else if (angle >= 78.75 && angle < 101.25) direction = 'S';
-            else if (angle >= 101.25 && angle < 123.75) direction = 'SSW';
-            else if (angle >= 123.75 && angle < 146.25) direction = 'SW';
-            else if (angle >= 146.25 && angle < 168.75) direction = 'SWW';
-            else if (angle >= 168.75 && angle < 191.25) direction = 'W';
-            else if (angle >= 191.25 && angle < 213.75) direction = 'NWW';
-            else if (angle >= 213.75 && angle < 236.25) direction = 'NW';
-            else if (angle >= 236.25 && angle < 258.75) direction = 'NNW';
-            else if (angle >= 258.75 && angle < 281.25) direction = 'N';
-            else if (angle >= 281.25 && angle < 303.75) direction = 'NNE';
-            else if (angle >= 303.75 && angle < 326.25) direction = 'NE';
-            else if (angle >= 326.25 && angle < 348.75) direction = 'NEE';
+            if (angleDeg < 22.5 || angleDeg >= 337.5) direction = 'E';
+            else if (angleDeg >= 22.5 && angleDeg < 67.5) direction = 'SEE';
+            else if (angleDeg >= 67.5 && angleDeg < 112.5) direction = 'SE';
+            else if (angleDeg >= 112.5 && angleDeg < 157.5) direction = 'S';
+            else if (angleDeg >= 157.5 && angleDeg < 202.5) direction = 'SW';
+            else if (angleDeg >= 202.5 && angleDeg < 247.5) direction = 'W';
+            else if (angleDeg >= 247.5 && angleDeg < 292.5) direction = 'NW';
+            else if (angleDeg >= 292.5 && angleDeg < 337.5) direction = 'N';
         }
 
         function updateAnimation() {
-            const animationClass = isIdle ? idleFrame : directions[direction];
-            player.className = `A ${animationClass}`;
+            if (isIdle) {
+                player.className = `A ${idleFrame}`;
+            } else {
+                player.className = `A ${directions[direction]}${animationFrame}`;
+                animationFrame = (animationFrame % maxFrames) + 1;
+            }
         }
 
         function updatePosition() {
@@ -184,38 +187,12 @@
             player.style.left = posX + '%';
             player.style.top = posY + '%';
 
-            if (Math.abs(velocityX) > 0.01 || Math.abs(velocityY) > 0.01) {
-                isIdle = false;
-            } else {
-                isIdle = true;
-            }
-
+            isIdle = Math.abs(velocityX) <= 0.01 && Math.abs(velocityY) <= 0.01;
             updateAnimation();
-        }
-
-        function handleGamepadInput() {
-            const gamepads = navigator.getGamepads();
-            if (!gamepads[0]) return;
-
-            const gp = gamepads[0];
-            const threshold = 0.2;
-            const xAxis = gp.axes[0];
-            const yAxis = gp.axes[1];
-
-            if (Math.abs(xAxis) > threshold || Math.abs(yAxis) > threshold) {
-                const angle = Math.atan2(yAxis, xAxis);
-                velocityX = Math.cos(angle) * maxSpeed;
-                velocityY = Math.sin(angle) * maxSpeed;
-                calculateDirectionFromJoystick(angle);
-                activeInput = true;
-            } else {
-                activeInput = false;
-            }
         }
 
         function gameLoop() {
             updatePosition();
-            handleGamepadInput();
             requestAnimationFrame(gameLoop);
         }
 
@@ -227,23 +204,7 @@
             window.addEventListener('mouseup', onEnd);
         });
 
-        joypad.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            updateJoypadCenter();
-            moveJoypadInner(e.touches[0].clientX, e.touches[0].clientY);
-            window.addEventListener('touchmove', onMove);
-            window.addEventListener('touchend', onEnd);
-        });
-
-        const onMove = (e) => {
-            const currentTime = Date.now();
-            if (currentTime - lastUpdateTime > debounceThreshold) {
-                const clientX = e.clientX || e.touches[0].clientX;
-                const clientY = e.clientY || e.touches[0].clientY;
-                moveJoypadInner(clientX, clientY);
-                lastUpdateTime = currentTime;
-            }
-        };
+        const onMove = (e) => moveJoypadInner(e.clientX, e.clientY);
 
         const onEnd = () => {
             activeInput = false;
@@ -251,11 +212,7 @@
             joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
             window.removeEventListener('mousemove', onMove);
             window.removeEventListener('mouseup', onEnd);
-            window.removeEventListener('touchmove', onMove);
-            window.removeEventListener('touchend', onEnd);
         };
-
-        window.addEventListener('gamepadconnected', handleGamepadInput);
 
         requestAnimationFrame(gameLoop);
     </script>
