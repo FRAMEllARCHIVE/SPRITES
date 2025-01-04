@@ -114,7 +114,7 @@
     </div>
 
     <script>
-        // Disable pinch zoom on iOS
+        
         document.addEventListener('touchstart', function(e) {
             if (e.touches.length > 1) {
                 e.preventDefault();
@@ -125,7 +125,6 @@
             e.preventDefault();
         });
 
-        // Game logic starts here
         const player = document.getElementById('player');
         const joypad = document.getElementById('joypad');
         const joypadInner = document.getElementById('joypadInner');
@@ -142,7 +141,7 @@
         let joypadRadius = joypad.offsetWidth / 2;
         let isIdle = true;
 
-        let frameRate = 5;  // Adjust to slow down frame rate changes
+        let frameRate = 5;  
         let frameCounter = 0;
         let direction = 'S';
 
@@ -217,7 +216,6 @@ function calculateDirectionFromJoystick(angle) {
         }
 
         function updatePosition() {
-            // Apply friction if not actively moving
             velocityX *= (1 - friction);
             velocityY *= (1 - friction);
 
@@ -230,7 +228,7 @@ function calculateDirectionFromJoystick(angle) {
             player.style.left = posX + '%';
             player.style.top = posY + '%';
 
-            isIdle = Math.abs(velocityX) <= 0.01 && Math.abs(velocityY) <= 0.01;
+            isIdle = Math.abs(velocityX) < 0.1 && Math.abs(velocityY) < 0.1;
             updateAnimation();
         }
 
