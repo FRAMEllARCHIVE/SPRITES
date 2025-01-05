@@ -116,10 +116,7 @@
     <div id="joypad">
         <div id="joypadInner"></div>
     </div>
-
-
     <script>
-        
         const player = document.getElementById('player');
         const joypad = document.getElementById('joypad');
         const joypadInner = document.getElementById('joypadInner');
@@ -136,6 +133,11 @@
         let joypadRadius = joypad.offsetWidth / 2;
         let isIdle = true;
 
+        // Joystick tracking variables
+        let joystickActive = false;
+        let joystickAngle = 0;
+        let joystickDistance = 0;
+
         const frameRate = 60;
         const animationFrameRate = 5;
         const animationInterval = 1000 / animationFrameRate;
@@ -151,52 +153,36 @@
         function moveJoypadInner(x, y) {
             const dx = x - joypadCenter.x;
             const dy = y - joypadCenter.y;
-            const distance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
-            const angle = Math.atan2(dy, dx);
-            joypadInner.style.left = `${Math.cos(angle) * distance + joypadRadius - joypadInner.offsetWidth / 2}px`;
-            joypadInner.style.top = `${Math.sin(angle) * distance + joypadRadius - joypadInner.offsetHeight / 2}px`;
-            velocityX = Math.cos(angle) * Math.min(distance / joypadRadius, 1) * maxSpeed;
-            velocityY = Math.sin(angle) * Math.min(distance / joypadRadius, 1) * maxSpeed;
-            calculateDirectionFromJoystick(angle);
+            joystickDistance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
+            joystickAngle = Math.atan2(dy, dx);
+
+            joypadInner.style.left = `${Math.cos(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetWidth / 2}px`;
+            joypadInner.style.top = `${Math.sin(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetHeight / 2}px`;
+
+            calculateDirectionFromJoystick(joystickAngle);
+            joystickActive = true;
         }
 
-function calculateDirectionFromJoystick(angle) {
-    const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
+        function calculateDirectionFromJoystick(angle) {
+            const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
 
-    if (angleDeg >= 348.75 || angleDeg < 11.25) {
-        direction = 'E';
-    } else if (angleDeg >= 11.25 && angleDeg < 33.75) {
-        direction = 'SEE';
-    } else if (angleDeg >= 33.75 && angleDeg < 56.25) {
-        direction = 'SE';
-    } else if (angleDeg >= 56.25 && angleDeg < 78.75) {
-        direction = 'SSE';
-    } else if (angleDeg >= 78.75 && angleDeg < 101.25) {
-        direction = 'S';
-    } else if (angleDeg >= 101.25 && angleDeg < 123.75) {
-        direction = 'SSW';
-    } else if (angleDeg >= 123.75 && angleDeg < 146.25) {
-        direction = 'SW';
-    } else if (angleDeg >= 146.25 && angleDeg < 168.75) {
-        direction = 'SWW';
-    } else if (angleDeg >= 168.75 && angleDeg < 191.25) {
-        direction = 'W';
-    } else if (angleDeg >= 191.25 && angleDeg < 213.75) {
-        direction = 'NWW';
-    } else if (angleDeg >= 213.75 && angleDeg < 236.25) {
-        direction = 'NW';
-    } else if (angleDeg >= 236.25 && angleDeg < 258.75) {
-        direction = 'NNW';
-    } else if (angleDeg >= 258.75 && angleDeg < 281.25) {
-        direction = 'N';
-    } else if (angleDeg >= 281.25 && angleDeg < 303.75) {
-        direction = 'NNE';
-    } else if (angleDeg >= 303.75 && angleDeg < 326.25) {
-        direction = 'NE';
-    } else if (angleDeg >= 326.25 && angleDeg < 348.75) {
-        direction = 'NEE';
-    }
-}
+            if (angleDeg >= 348.75 || angleDeg < 11.25) direction = 'E';
+            else if (angleDeg >= 11.25 && angleDeg < 33.75) direction = 'SEE';
+            else if (angleDeg >= 33.75 && angleDeg < 56.25) direction = 'SE';
+            else if (angleDeg >= 56.25 && angleDeg < 78.75) direction = 'SSE';
+            else if (angleDeg >= 78.75 && angleDeg < 101.25) direction = 'S';
+            else if (angleDeg >= 101.25 && angleDeg < 123.75) direction = 'SSW';
+            else if (angleDeg >= 123.75 && angleDeg < 146.25) direction = 'SW';
+            else if (angleDeg >= 146.25 && angleDeg < 168.75) direction = 'SWW';
+            else if (angleDeg >= 168.75 && angleDeg < 191.25) direction = 'W';
+            else if (angleDeg >= 191.25 && angleDeg < 213.75) direction = 'NWW';
+            else if (angleDeg >= 213.75 && angleDeg < 236.25) direction = 'NW';
+            else if (angleDeg >= 236.25 && angleDeg < 258.75) direction = 'NNW';
+            else if (angleDeg >= 258.75 && angleDeg < 281.25) direction = 'N';
+            else if (angleDeg >= 281.25 && angleDeg < 303.75) direction = 'NNE';
+            else if (angleDeg >= 303.75 && angleDeg < 326.25) direction = 'NE';
+            else if (angleDeg >= 326.25 && angleDeg < 348.75) direction = 'NEE';
+        }
 
         function updateAnimation(timestamp) {
             if (timestamp - lastAnimationTime > animationInterval) {
@@ -213,8 +199,13 @@ function calculateDirectionFromJoystick(angle) {
         }
 
         function updatePosition() {
-            velocityX *= (1 - friction);
-            velocityY *= (1 - friction);
+            if (joystickActive) {
+                velocityX = Math.cos(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
+                velocityY = Math.sin(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
+            } else {
+                velocityX *= (1 - friction);
+                velocityY *= (1 - friction);
+            }
 
             posX += velocityX;
             posY += velocityY;
@@ -225,7 +216,7 @@ function calculateDirectionFromJoystick(angle) {
             player.style.left = `${posX}%`;
             player.style.top = `${posY}%`;
 
-            isIdle = Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
+            isIdle = !joystickActive && Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
         }
 
         function gameLoop(timestamp) {
@@ -243,11 +234,14 @@ function calculateDirectionFromJoystick(angle) {
             moveJoypadInner(event.touches[0].clientX, event.touches[0].clientY);
         });
 
-        joypad.addEventListener('touchend', () => {
-            velocityX = 0;
-            velocityY = 0;
-            joypadInner.style.left = `${joypadRadius - joypadInner.offsetWidth / 2}px`;
-            joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
+        joypad.addEventListener('touchend', (event) => {
+            if (event.touches.length === 0) {
+                joystickActive = false;
+                velocityX = 0;
+                velocityY = 0;
+                joypadInner.style.left = `${joypadRadius - joypadInner.offsetWidth / 2}px`;
+                joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
+            }
         });
 
         gameLoop(0);
