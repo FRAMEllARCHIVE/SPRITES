@@ -244,6 +244,7 @@
     function connectGamepad(event) {
         gamepadIndex = event.gamepad.index;
         console.log(`Gamepad connected: ${event.gamepad.id}`);
+        joypad.style.opacity = '0';
     }
 
     function disconnectGamepad(event) {
@@ -251,8 +252,9 @@
         if (gamepadIndex === event.gamepad.index) {
             gamepadIndex = null;
         }
+        joypad.style.opacity = '1';
     }
-
+        
     function gameLoop(timestamp) {
         handleGamepadInput();
         updatePosition();
