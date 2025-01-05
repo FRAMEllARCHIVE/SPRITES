@@ -117,133 +117,175 @@
         <div id="joypadInner"></div>
     </div>
     <script>
-        const player = document.getElementById('player');
-        const joypad = document.getElementById('joypad');
-        const joypadInner = document.getElementById('joypadInner');
-        const directions = { SSW: 'SSW', SW: 'SW', W: 'W', NW: 'NW', N: 'N', NE: 'NE', E: 'E', SEE: 'SEE', SE: 'SE', S: 'S', SWW: 'SWW', NWW: 'NWW', SSE: 'SSE', NNE: 'NNE', NNW: 'NNW', NEE: 'NEE' };
-        let posX = 50, posY = 50;
-        let velocityX = 0, velocityY = 0;
-        const friction = 0.06;
-        const maxSpeed = 0.8;
-        let animationFrame = 1;
-        const maxFrames = 3;
-        let idleFrame = 1;
-        const maxIdleFrames = 3;
-        let joypadCenter = { x: 0, y: 0 };
-        let joypadRadius = joypad.offsetWidth / 2;
-        let isIdle = true;
+    const player = document.getElementById('player');
+    const joypad = document.getElementById('joypad');
+    const joypadInner = document.getElementById('joypadInner');
+    const directions = { SSW: 'SSW', SW: 'SW', W: 'W', NW: 'NW', N: 'N', NE: 'NE', E: 'E', SEE: 'SEE', SE: 'SE', S: 'S', SWW: 'SWW', NWW: 'NWW', SSE: 'SSE', NNE: 'NNE', NNW: 'NNW', NEE: 'NEE' };
+    let posX = 50, posY = 50;
+    let velocityX = 0, velocityY = 0;
+    const friction = 0.06;
+    const maxSpeed = 0.8;
+    let animationFrame = 1;
+    const maxFrames = 3;
+    let idleFrame = 1;
+    const maxIdleFrames = 3;
+    let joypadCenter = { x: 0, y: 0 };
+    let joypadRadius = joypad.offsetWidth / 2;
+    let isIdle = true;
 
-        let joystickActive = false;
-        let joystickAngle = 0;
-        let joystickDistance = 0;
+    let joystickActive = false;
+    let joystickAngle = 0;
+    let joystickDistance = 0;
 
-        const frameRate = 60;
-        const animationFrameRate = 5;
-        const animationInterval = 1000 / animationFrameRate;
-        let lastAnimationTime = 0;
-        let direction = 'S';
+    const frameRate = 60;
+    const animationFrameRate = 5;
+    const animationInterval = 1000 / animationFrameRate;
+    let lastAnimationTime = 0;
+    let direction = 'S';
 
-        function updateJoypadCenter() {
-            const rect = joypad.getBoundingClientRect();
-            joypadCenter.x = rect.left + joypad.offsetWidth / 2;
-            joypadCenter.y = rect.top + joypad.offsetHeight / 2;
+    // Gamepad support variables
+    let gamepadIndex = null;
+
+    function updateJoypadCenter() {
+        const rect = joypad.getBoundingClientRect();
+        joypadCenter.x = rect.left + joypad.offsetWidth / 2;
+        joypadCenter.y = rect.top + joypad.offsetHeight / 2;
+    }
+
+    function moveJoypadInner(x, y) {
+        const dx = x - joypadCenter.x;
+        const dy = y - joypadCenter.y;
+        joystickDistance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
+        joystickAngle = Math.atan2(dy, dx);
+
+        joypadInner.style.left = `${Math.cos(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetWidth / 2}px`;
+        joypadInner.style.top = `${Math.sin(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetHeight / 2}px`;
+
+        calculateDirectionFromJoystick(joystickAngle);
+        joystickActive = true;
+    }
+
+    function calculateDirectionFromJoystick(angle) {
+        const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
+
+        if (angleDeg >= 348.75 || angleDeg < 11.25) direction = 'E';
+        else if (angleDeg >= 11.25 && angleDeg < 33.75) direction = 'SEE';
+        else if (angleDeg >= 33.75 && angleDeg < 56.25) direction = 'SE';
+        else if (angleDeg >= 56.25 && angleDeg < 78.75) direction = 'SSE';
+        else if (angleDeg >= 78.75 && angleDeg < 101.25) direction = 'S';
+        else if (angleDeg >= 101.25 && angleDeg < 123.75) direction = 'SSW';
+        else if (angleDeg >= 123.75 && angleDeg < 146.25) direction = 'SW';
+        else if (angleDeg >= 146.25 && angleDeg < 168.75) direction = 'SWW';
+        else if (angleDeg >= 168.75 && angleDeg < 191.25) direction = 'W';
+        else if (angleDeg >= 191.25 && angleDeg < 213.75) direction = 'NWW';
+        else if (angleDeg >= 213.75 && angleDeg < 236.25) direction = 'NW';
+        else if (angleDeg >= 236.25 && angleDeg < 258.75) direction = 'NNW';
+        else if (angleDeg >= 258.75 && angleDeg < 281.25) direction = 'N';
+        else if (angleDeg >= 281.25 && angleDeg < 303.75) direction = 'NNE';
+        else if (angleDeg >= 303.75 && angleDeg < 326.25) direction = 'NE';
+        else if (angleDeg >= 326.25 && angleDeg < 348.75) direction = 'NEE';
+    }
+
+    function updateAnimation(timestamp) {
+        if (timestamp - lastAnimationTime > animationInterval) {
+            lastAnimationTime = timestamp;
+
+            if (isIdle) {
+                player.className = `A idle${idleFrame}`;
+                idleFrame = (idleFrame % maxIdleFrames) + 1;
+            } else {
+                player.className = `A ${directions[direction]}${animationFrame}`;
+                animationFrame = (animationFrame % maxFrames) + 1;
+            }
+        }
+    }
+
+    function updatePosition() {
+        if (joystickActive) {
+            velocityX = Math.cos(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
+            velocityY = Math.sin(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
+        } else {
+            velocityX *= (1 - friction);
+            velocityY *= (1 - friction);
         }
 
-        function moveJoypadInner(x, y) {
-            const dx = x - joypadCenter.x;
-            const dy = y - joypadCenter.y;
-            joystickDistance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
-            joystickAngle = Math.atan2(dy, dx);
+        posX += velocityX;
+        posY += velocityY;
 
-            joypadInner.style.left = `${Math.cos(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetWidth / 2}px`;
-            joypadInner.style.top = `${Math.sin(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetHeight / 2}px`;
+        posX = Math.max(0, Math.min(100, posX));
+        posY = Math.max(0, Math.min(100, posY));
+
+        player.style.left = `${posX}%`;
+        player.style.top = `${posY}%`;
+
+        isIdle = !joystickActive && Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
+    }
+
+    function handleGamepadInput() {
+        if (gamepadIndex === null) return;
+
+        const gamepad = navigator.getGamepads()[gamepadIndex];
+        if (!gamepad) return;
+
+        const threshold = 0.2; // Deadzone threshold
+        const axisX = gamepad.axes[0]; // Left thumbstick X-axis
+        const axisY = gamepad.axes[1]; // Left thumbstick Y-axis
+
+        if (Math.abs(axisX) > threshold || Math.abs(axisY) > threshold) {
+            joystickAngle = Math.atan2(axisY, axisX);
+            joystickDistance = Math.min(Math.sqrt(axisX ** 2 + axisY ** 2), 1) * joypadRadius;
 
             calculateDirectionFromJoystick(joystickAngle);
             joystickActive = true;
+        } else {
+            joystickActive = false;
         }
+    }
 
-        function calculateDirectionFromJoystick(angle) {
-            const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
+    function connectGamepad(event) {
+        gamepadIndex = event.gamepad.index;
+        console.log(`Gamepad connected: ${event.gamepad.id}`);
+    }
 
-            if (angleDeg >= 348.75 || angleDeg < 11.25) direction = 'E';
-            else if (angleDeg >= 11.25 && angleDeg < 33.75) direction = 'SEE';
-            else if (angleDeg >= 33.75 && angleDeg < 56.25) direction = 'SE';
-            else if (angleDeg >= 56.25 && angleDeg < 78.75) direction = 'SSE';
-            else if (angleDeg >= 78.75 && angleDeg < 101.25) direction = 'S';
-            else if (angleDeg >= 101.25 && angleDeg < 123.75) direction = 'SSW';
-            else if (angleDeg >= 123.75 && angleDeg < 146.25) direction = 'SW';
-            else if (angleDeg >= 146.25 && angleDeg < 168.75) direction = 'SWW';
-            else if (angleDeg >= 168.75 && angleDeg < 191.25) direction = 'W';
-            else if (angleDeg >= 191.25 && angleDeg < 213.75) direction = 'NWW';
-            else if (angleDeg >= 213.75 && angleDeg < 236.25) direction = 'NW';
-            else if (angleDeg >= 236.25 && angleDeg < 258.75) direction = 'NNW';
-            else if (angleDeg >= 258.75 && angleDeg < 281.25) direction = 'N';
-            else if (angleDeg >= 281.25 && angleDeg < 303.75) direction = 'NNE';
-            else if (angleDeg >= 303.75 && angleDeg < 326.25) direction = 'NE';
-            else if (angleDeg >= 326.25 && angleDeg < 348.75) direction = 'NEE';
+    function disconnectGamepad(event) {
+        console.log(`Gamepad disconnected: ${event.gamepad.id}`);
+        if (gamepadIndex === event.gamepad.index) {
+            gamepadIndex = null;
         }
+    }
 
-        function updateAnimation(timestamp) {
-            if (timestamp - lastAnimationTime > animationInterval) {
-                lastAnimationTime = timestamp;
+    function gameLoop(timestamp) {
+        handleGamepadInput(); // Poll gamepad input
+        updatePosition();
+        updateAnimation(timestamp);
+        requestAnimationFrame(gameLoop);
+    }
 
-                if (isIdle) {
-                    player.className = `A idle${idleFrame}`;
-                    idleFrame = (idleFrame % maxIdleFrames) + 1;
-                } else {
-                    player.className = `A ${directions[direction]}${animationFrame}`;
-                    animationFrame = (animationFrame % maxFrames) + 1;
-                }
-            }
+    // Event listeners for gamepad
+    window.addEventListener('gamepadconnected', connectGamepad);
+    window.addEventListener('gamepaddisconnected', disconnectGamepad);
+
+    // Touch event listeners for joystick
+    joypad.addEventListener('touchstart', (event) => {
+        updateJoypadCenter();
+        moveJoypadInner(event.touches[0].clientX, event.touches[0].clientY);
+    });
+
+    joypad.addEventListener('touchmove', (event) => {
+        moveJoypadInner(event.touches[0].clientX, event.touches[0].clientY);
+    });
+
+    joypad.addEventListener('touchend', (event) => {
+        if (event.touches.length === 0) {
+            joystickActive = false;
+            velocityX = 0;
+            velocityY = 0;
+            joypadInner.style.left = `${joypadRadius - joypadInner.offsetWidth / 2}px`;
+            joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
         }
+    });
 
-        function updatePosition() {
-            if (joystickActive) {
-                velocityX = Math.cos(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
-                velocityY = Math.sin(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
-            } else {
-                velocityX *= (1 - friction);
-                velocityY *= (1 - friction);
-            }
-
-            posX += velocityX;
-            posY += velocityY;
-
-            posX = Math.max(0, Math.min(100, posX));
-            posY = Math.max(0, Math.min(100, posY));
-
-            player.style.left = `${posX}%`;
-            player.style.top = `${posY}%`;
-
-            isIdle = !joystickActive && Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
-        }
-
-        function gameLoop(timestamp) {
-            updatePosition();
-            updateAnimation(timestamp);
-            requestAnimationFrame(gameLoop);
-        }
-
-        joypad.addEventListener('touchstart', (event) => {
-            updateJoypadCenter();
-            moveJoypadInner(event.touches[0].clientX, event.touches[0].clientY);
-        });
-
-        joypad.addEventListener('touchmove', (event) => {
-            moveJoypadInner(event.touches[0].clientX, event.touches[0].clientY);
-        });
-
-        joypad.addEventListener('touchend', (event) => {
-            if (event.touches.length === 0) {
-                joystickActive = false;
-                velocityX = 0;
-                velocityY = 0;
-                joypadInner.style.left = `${joypadRadius - joypadInner.offsetWidth / 2}px`;
-                joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
-            }
-        });
-
-        gameLoop(0);
-    </script>
+    gameLoop(0);
+</script>
 </body>
 </html>
