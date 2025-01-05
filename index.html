@@ -143,7 +143,6 @@
     let lastAnimationTime = 0;
     let direction = 'S';
 
-    // Gamepad support variables
     let gamepadIndex = null;
 
     function updateJoypadCenter() {
@@ -227,9 +226,9 @@
         const gamepad = navigator.getGamepads()[gamepadIndex];
         if (!gamepad) return;
 
-        const threshold = 0.2; // Deadzone threshold
-        const axisX = gamepad.axes[0]; // Left thumbstick X-axis
-        const axisY = gamepad.axes[1]; // Left thumbstick Y-axis
+        const threshold = 0.2;
+        const axisX = gamepad.axes[0];
+        const axisY = gamepad.axes[1];
 
         if (Math.abs(axisX) > threshold || Math.abs(axisY) > threshold) {
             joystickAngle = Math.atan2(axisY, axisX);
@@ -255,17 +254,15 @@
     }
 
     function gameLoop(timestamp) {
-        handleGamepadInput(); // Poll gamepad input
+        handleGamepadInput();
         updatePosition();
         updateAnimation(timestamp);
         requestAnimationFrame(gameLoop);
     }
 
-    // Event listeners for gamepad
     window.addEventListener('gamepadconnected', connectGamepad);
     window.addEventListener('gamepaddisconnected', disconnectGamepad);
 
-    // Touch event listeners for joystick
     joypad.addEventListener('touchstart', (event) => {
         updateJoypadCenter();
         moveJoypadInner(event.touches[0].clientX, event.touches[0].clientY);
