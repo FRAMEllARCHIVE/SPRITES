@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Controller</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+
+        #gameArea {
+            position: relative;
+            width: 82vmin;
+            height: 82vmin;
+            background-color: #ddd;
+            border-radius: 3vh;
+            overflow: hidden;
+        }
+
+        .character {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            transform: translate(-50%, -50%);
+            background-image: url('spritesheet.png');
+            background-repeat: no-repeat;
+            transition: top 0.1s, left 0.1s;
+        }
+
+        #joypad {
+            position: absolute;
+            bottom: 10%;
+            left: 10%;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #joypadInner {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            position: absolute;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div id="player" class="character"></div>
+        <div id="chaser" class="character"></div>
+    </div>
+    <div id="joypad">
+        <div id="joypadInner"></div>
+    </div>
+
+    <script>
+        class Character {
+            constructor(element, maxSpeed, friction) {
+                this.element = element;
+                this.posX = 50; // Start at center
+                this.posY = 50;
+                this.velocityX = 0;
+                this.velocityY = 0;
+                this.maxSpeed = maxSpeed;
+                this.friction = friction;
+                this.direction = 'S';
+                this.animationFrame = 1;
+                this.lastAnimationTime = 0;
+            }
+
+            updatePosition(targetX, targetY, speedMultiplier = 1) {
+                const dx = targetX - this.posX;
+                const dy = targetY - this.posY;
+                const distance = Math.sqrt(dx ** 2 + dy ** 2);
+
+                if (distance > 0.5) {
+                    this.velocityX += (dx / distance) * this.maxSpeed * speedMultiplier;
+                    this.velocityY += (dy / distance) * this.maxSpeed * speedMultiplier;
+                }
+
+                this.velocityX *= 1 - this.friction;
+                this.velocityY *= 1 - this.friction;
+
+                this.posX = Math.max(0, Math.min(100, this.posX + this.velocityX));
+                this.posY = Math.max(0, Math.min(100, this.posY + this.velocityY));
+
+                this.element.style.left = `${this.posX}%`;
+                this.element.style.top = `${this.posY}%`;
+
+                if (Math.abs(this.velocityX) > 0.01 || Math.abs(this.velocityY) > 0.01) {
+                    this.direction = Character.calculateDirection(this.velocityX, this.velocityY);
+                }
+            }
+
+            updateAnimation(timestamp, animationInterval) {
+                if (timestamp - this.lastAnimationTime > animationInterval) {
+                    this.element.style.backgroundPosition = Character.getSpritePosition(this.direction, this.animationFrame);
+                    this.animationFrame = (this.animationFrame % 3) + 1;
+                    this.lastAnimationTime = timestamp;
+                }
+            }
+
+            static calculateDirection(vx, vy) {
+                const angle = Math.atan2(vy, vx) * (180 / Math.PI);
+                const directions = [
+                    'E', 'SEE', 'SE', 'SSE', 'S',
+                    'SSW', 'SW', 'SWW', 'W', 'NWW',
+                    'NW', 'NNW', 'N', 'NNE', 'NE', 'NEE',
+                ];
+                return directions[Math.round(((angle + 360) % 360) / 22.5) % 16];
+            }
+
+            static getSpritePosition(direction, frame) {
+                const directionsOrder = {
+                    S: 0, SSW: 1, SW: 2, SWW: 3, W: 4, NWW: 5,
+                    NW: 6, NNW: 7, N: 8, NNE: 9, NE: 10, NEE: 11,
+                    E: 12, SEE: 13, SE: 14, SSE: 15,
+                };
+                const x = directionsOrder[direction] * -100; // Assuming 100px per sprite frame
+                const y = (frame - 1) * -100;
+                return `${x}px ${y}px`;
+            }
+        }
+
+        const player = new Character(document.getElementById('player'), 0.8, 0.06);
+        const chaser = new Character(document.getElementById('chaser'), 0.02, 0.06);
+
+        const joypad = document.getElementById('joypad');
+        const joypadInner = document.getElementById('joypadInner');
+        let joystickActive = false, joystickAngle = 0, joystickDistance = 0;
+        const joypadRadius = joypad.offsetWidth / 2;
+
+        function updateJoypad(x, y) {
+            const rect = joypad.getBoundingClientRect();
+            const dx = x - (rect.left + rect.width / 2);
+            const dy = y - (rect.top + rect.height / 2);
+            joystickDistance = Math.min(Math.sqrt(dx ** 2 + dy ** 2), joypadRadius);
+            joystickAngle = Math.atan2(dy, dx);
+            joypadInner.style.left = `${Math.cos(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetWidth / 2}px`;
+            joypadInner.style.top = `${Math.sin(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetHeight / 2}px`;
+            joystickActive = true;
+        }
+
+        function updatePlayerFromJoystick() {
+            if (joystickActive) {
+                player.velocityX = Math.cos(joystickAngle) * (joystickDistance / joypadRadius) * player.maxSpeed;
+                player.velocityY = Math.sin(joystickAngle) * (joystickDistance / joypadRadius) * player.maxSpeed;
+            }
+        }
+
+        function gameLoop(timestamp) {
+            updatePlayerFromJoystick();
+            player.updatePosition(player.posX + player.velocityX, player.posY + player.velocityY);
+            player.updateAnimation(timestamp, 1000 / 5);
+
+            chaser.updatePosition(player.posX, player.posY, 0.5);
+            chaser.updateAnimation(timestamp, 1000 / 5);
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        joypad.addEventListener('touchstart', (e) => updateJoypad(e.touches[0].clientX, e.touches[0].clientY));
+        joypad.addEventListener('touchmove', (e) => updateJoypad(e.touches[0].clientX, e.touches[0].clientY));
+        joypad.addEventListener('touchend', () => {
+            joystickActive = false;
+            joypadInner.style.left = `${joypadRadius - joypadInner.offsetWidth / 2}px`;
+            joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
+        });
+
+        gameLoop(0);
+    </script>
+</body>
+</html>
