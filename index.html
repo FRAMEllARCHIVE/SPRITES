@@ -169,19 +169,26 @@
         joystickActive = true;
     }
 
-function calculateDirectionFromJoystick(angle) {
-    const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
-    
-    // Direction names
-    const directions = [
-        'E', 'SEE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'SWW', 'W', 'NWW', 'NW', 'NNW', 'N', 'NNE', 'NE', 'NEE'
-    ];
 
-    // Calculate the index based on angle without any additional shift
-    const index = Math.floor((angleDeg + 360) / 22.5) % 16;
+        function calculateDirectionFromJoystick(angle) {
+        const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
 
-    // Return the corresponding direction
-    return directions[index];
+        if (angleDeg >= 348.75 || angleDeg < 11.25) direction = 'E';
+        else if (angleDeg >= 11.25 && angleDeg < 33.75) direction = 'SEE';
+        else if (angleDeg >= 33.75 && angleDeg < 56.25) direction = 'SE';
+        else if (angleDeg >= 56.25 && angleDeg < 78.75) direction = 'SSE';
+        else if (angleDeg >= 78.75 && angleDeg < 101.25) direction = 'S';
+        else if (angleDeg >= 101.25 && angleDeg < 123.75) direction = 'SSW';
+        else if (angleDeg >= 123.75 && angleDeg < 146.25) direction = 'SW';
+        else if (angleDeg >= 146.25 && angleDeg < 168.75) direction = 'SWW';
+        else if (angleDeg >= 168.75 && angleDeg < 191.25) direction = 'W';
+        else if (angleDeg >= 191.25 && angleDeg < 213.75) direction = 'NWW';
+        else if (angleDeg >= 213.75 && angleDeg < 236.25) direction = 'NW';
+        else if (angleDeg >= 236.25 && angleDeg < 258.75) direction = 'NNW';
+        else if (angleDeg >= 258.75 && angleDeg < 281.25) direction = 'N';
+        else if (angleDeg >= 281.25 && angleDeg < 303.75) direction = 'NNE';
+        else if (angleDeg >= 303.75 && angleDeg < 326.25) direction = 'NE';
+        else if (angleDeg >= 326.25 && angleDeg < 348.75) direction = 'NEE';
 }
 
     function updateAnimation(timestamp) {
