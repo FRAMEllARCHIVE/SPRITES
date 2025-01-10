@@ -23,13 +23,15 @@
             border-radius: 3vh;
             overflow: hidden;
         }
-        #player {
-            position: absolute;
-            width: 100px;
-            height: 100px;
-            transform: translate(-50%, -50%);
-            transition: top 0.1s, left 0.1s;
-        }
+
+    #player, #chaser {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    transform: translate(-50%, -50%);
+    transition: top 0.1s, left 0.1s;
+}
+        
         .A {
             background-image: url('spritesheet.png');
             background-repeat: no-repeat;
@@ -107,15 +109,6 @@
             position: absolute;
             pointer-events: none;
         }
-
-        #chaser {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    background-color: transparent;
-    transform: translate(-50%, -50%);
-    transition: top 0.1s, left 0.1s;
-}
     </style>
 </head>
 <body>
