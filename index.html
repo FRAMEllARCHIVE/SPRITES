@@ -120,16 +120,18 @@
     <div id="joypad">
         <div id="joypadInner"></div>
     </div>
-<script>
 const player = document.getElementById('player');
 const joypad = document.getElementById('joypad');
 const joypadInner = document.getElementById('joypadInner');
 const chaser = document.getElementById('chaser');
-const directions = { SSW: 'SSW', SW: 'SW', W: 'W', NW: 'NW', N: 'N', NE: 'NE', E: 'E', SEE: 'SEE', SE: 'SE', S: 'S', SWW: 'SWW', NWW: 'NWW', SSE: 'SSE', NNE: 'NNE', NNW: 'NNW', NEE: 'NEE' };
+const directions = {
+    SSW: 'SSW', SW: 'SW', W: 'W', NW: 'NW', N: 'N', NE: 'NE', E: 'E', SEE: 'SEE', SE: 'SE', S: 'S', 
+    SWW: 'SWW', NWW: 'NWW', SSE: 'SSE', NNE: 'NNE', NNW: 'NNW', NEE: 'NEE'
+};
 let posX = 50, posY = 50, velocityX = 0, velocityY = 0, joystickAngle = 0, joystickDistance = 0, animationFrame = 1, idleFrame = 1, lastAnimationTime = 0, lastChaserAnimationTime = 0, gamepadIndex = null;
 const friction = 0.06, maxSpeed = 0.8, maxFrames = 3, maxIdleFrames = 3, chaserSpeed = 0.02, animationFrameRate = 5, animationInterval = 1000 / animationFrameRate;
 let joypadCenter = { x: 0, y: 0 }, joypadRadius = joypad.offsetWidth / 2, joystickActive = false, isIdle = true, chaserDirection = 'S';
-let chaserX = 20, chaserY = 20, chaserVelocityX = 0, chaserVelocityY = 0;
+let chaserX = 20, chaserY = 20, chaserVelocityX = 0, chaserVelocityY = 0, playerDirection = 'S';
 
 function updateJoypadCenter() {
     const rect = joypad.getBoundingClientRect();
@@ -151,7 +153,7 @@ function calculateDirectionFromJoystick(angle) {
     const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
     const directionsArray = ['E', 'SEE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'SWW', 'W', 'NWW', 'NW', 'NNW', 'N', 'NNE', 'NE', 'NEE'];
     const step = 360 / directionsArray.length;
-    direction = directionsArray[Math.floor((angleDeg + step / 2) / step)];
+    playerDirection = directionsArray[Math.floor((angleDeg + step / 2) / step)];
 }
 
 function updateAnimation(timestamp, targetElement, direction, frameRate, isIdle) {
@@ -182,6 +184,8 @@ function updatePosition() {
     player.style.top = `${posY}%`;
 
     isIdle = !joystickActive && Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
+
+    updateAnimation(performance.now(), player, playerDirection, animationFrame, isIdle);
 }
 
 function handleGamepadInput() {
@@ -238,7 +242,7 @@ function updateChaser(timestamp) {
         chaserDirection = calculateDirectionFromVelocity(chaserVelocityX, chaserVelocityY);
     }
 
-    updateAnimation(timestamp, chaser, chaserDirection, chaserAnimationFrame, false);
+    updateAnimation(timestamp, chaser, chaserDirection, animationFrame, false);
 }
 
 function calculateDirectionFromVelocity(vx, vy) {
@@ -254,7 +258,6 @@ function gameLoop(timestamp) {
     handleGamepadInput();
     updatePosition();
     updateChaser(timestamp);
-    updateAnimation(timestamp, player, direction, animationFrame, isIdle);
     requestAnimationFrame(gameLoop);
 }
 
@@ -281,6 +284,7 @@ joypad.addEventListener('touchend', () => {
 });
 
 gameLoop(0);
+
 </script>
 </body>
 </html>
