@@ -122,7 +122,7 @@
 <body>
     <div id="gameArea">
         <div id="player" class="A"></div>
-        <div id="chaser"></div>
+        <div id="chaser" class="A"></div>
     
     </div>
     <div id="joypad">
@@ -271,7 +271,7 @@
 function gameLoop(timestamp) {
     handleGamepadInput();
     updatePosition();
-    updateChaser();
+    updateChaser(timestamp);
     updateAnimation(timestamp);
     requestAnimationFrame(gameLoop);
 }
@@ -298,22 +298,69 @@ function gameLoop(timestamp) {
         }
     });
 
-        const chaser = document.getElementById('chaser');
+        //chaser logic
+let chaserVelocityX = 0, chaserVelocityY = 0;
+const chaserFriction = 0.06;
+let chaserDirection = 'S';
+let chaserAnimationFrame = 1;
+let lastChaserAnimationTime = 0;
+const chaser = document.getElementById('chaser');
 let chaserX = 20, chaserY = 20;
 const chaserSpeed = 0.2;
 
-function updateChaser() {
+function calculateDirectionFromVelocity(vx, vy) {
+    const angle = Math.atan2(vy, vx);
+    const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
+
+    if (angleDeg >= 348.75 || angleDeg < 11.25) return 'E';
+    else if (angleDeg >= 11.25 && angleDeg < 33.75) return 'SEE';
+    else if (angleDeg >= 33.75 && angleDeg < 56.25) return 'SE';
+    else if (angleDeg >= 56.25 && angleDeg < 78.75) return 'SSE';
+    else if (angleDeg >= 78.75 && angleDeg < 101.25) return 'S';
+    else if (angleDeg >= 101.25 && angleDeg < 123.75) return 'SSW';
+    else if (angleDeg >= 123.75 && angleDeg < 146.25) return 'SW';
+    else if (angleDeg >= 146.25 && angleDeg < 168.75) return 'SWW';
+    else if (angleDeg >= 168.75 && angleDeg < 191.25) return 'W';
+    else if (angleDeg >= 191.25 && angleDeg < 213.75) return 'NWW';
+    else if (angleDeg >= 213.75 && angleDeg < 236.25) return 'NW';
+    else if (angleDeg >= 236.25 && angleDeg < 258.75) return 'NNW';
+    else if (angleDeg >= 258.75 && angleDeg < 281.25) return 'N';
+    else if (angleDeg >= 281.25 && angleDeg < 303.75) return 'NNE';
+    else if (angleDeg >= 303.75 && angleDeg < 326.25) return 'NE';
+    else if (angleDeg >= 326.25 && angleDeg < 348.75) return 'NEE';
+}
+        
+function updateChaser(timestamp) {
     const dx = posX - chaserX;
     const dy = posY - chaserY;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
     if (distance > 0.5) {
-        chaserX += (dx / distance) * chaserSpeed;
-        chaserY += (dy / distance) * chaserSpeed;
+        chaserVelocityX += (dx / distance) * chaserSpeed;
+        chaserVelocityY += (dy / distance) * chaserSpeed;
     }
+
+    chaserVelocityX *= (1 - chaserFriction);
+    chaserVelocityY *= (1 - chaserFriction);
+
+    chaserX += chaserVelocityX;
+    chaserY += chaserVelocityY;
+
+    chaserX = Math.max(0, Math.min(100, chaserX));
+    chaserY = Math.max(0, Math.min(100, chaserY));
 
     chaser.style.left = `${chaserX}%`;
     chaser.style.top = `${chaserY}%`;
+
+    if (Math.abs(chaserVelocityX) > 0.01 || Math.abs(chaserVelocityY) > 0.01) {
+        chaserDirection = calculateDirectionFromVelocity(chaserVelocityX, chaserVelocityY);
+    }
+
+    if (timestamp - lastChaserAnimationTime > animationInterval) {
+        chaser.className = `A ${directions[chaserDirection]}${chaserAnimationFrame}`;
+        chaserAnimationFrame = (chaserAnimationFrame % maxFrames) + 1;
+        lastChaserAnimationTime = timestamp;
+    }
 }
 
     gameLoop(0);
