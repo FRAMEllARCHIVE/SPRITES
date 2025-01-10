@@ -107,15 +107,28 @@
             position: absolute;
             pointer-events: none;
         }
+
+        #chaser {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background-color: red;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: top 0.1s, left 0.1s;
+}
     </style>
 </head>
 <body>
     <div id="gameArea">
         <div id="player" class="A"></div>
+        <div id="chaser"></div>
+    
     </div>
     <div id="joypad">
         <div id="joypadInner"></div>
     </div>
+
     <script>
     const player = document.getElementById('player');
     const joypad = document.getElementById('joypad');
@@ -255,12 +268,13 @@
         joypad.style.opacity = '1';
     }
         
-    function gameLoop(timestamp) {
-        handleGamepadInput();
-        updatePosition();
-        updateAnimation(timestamp);
-        requestAnimationFrame(gameLoop);
-    }
+function gameLoop(timestamp) {
+    handleGamepadInput();
+    updatePosition();
+    updateChaser();
+    updateAnimation(timestamp);
+    requestAnimationFrame(gameLoop);
+}
 
     window.addEventListener('gamepadconnected', connectGamepad);
     window.addEventListener('gamepaddisconnected', disconnectGamepad);
@@ -283,6 +297,24 @@
             joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
         }
     });
+
+        const chaser = document.getElementById('chaser');
+let chaserX = 20, chaserY = 20;
+const chaserSpeed = 0.2;
+
+function updateChaser() {
+    const dx = posX - chaserX;
+    const dy = posY - chaserY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance > 0.5) {
+        chaserX += (dx / distance) * chaserSpeed;
+        chaserY += (dy / distance) * chaserSpeed;
+    }
+
+    chaser.style.left = `${chaserX}%`;
+    chaser.style.top = `${chaserY}%`;
+}
 
     gameLoop(0);
 </script>
