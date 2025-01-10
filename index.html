@@ -112,8 +112,7 @@
     position: absolute;
     width: 80px;
     height: 80px;
-    background-color: red;
-    border-radius: 50%;
+    background-color: transparent;
     transform: translate(-50%, -50%);
     transition: top 0.1s, left 0.1s;
 }
@@ -306,7 +305,7 @@ let chaserAnimationFrame = 1;
 let lastChaserAnimationTime = 0;
 const chaser = document.getElementById('chaser');
 let chaserX = 20, chaserY = 20;
-const chaserSpeed = 0.2;
+const chaserSpeed = 0.05;
 
 function calculateDirectionFromVelocity(vx, vy) {
     const angle = Math.atan2(vy, vx);
