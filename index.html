@@ -24,6 +24,14 @@
             overflow: hidden;
                         user-select: none;
         }
+
+#playerContainer, #chaserContainer {
+    position: absolute;
+    width: 1%;
+    height: 1%;
+    transform: scale(0.01);
+    transform-origin: center center;
+}
         
 #player, #chaser {
     position: absolute;
@@ -128,8 +136,12 @@
 </head>
 <body>
 <div id="gameArea">
+    <div id="playerContainer">
         <div id="player" class="A"></div>
+    </div>
+    <div id="chaserContainer">
         <div id="chaser" class="A"></div>
+    </div>
 </div>
     <div id="joypad">
         <div id="joypadInner"></div>
