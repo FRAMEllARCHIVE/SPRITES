@@ -400,10 +400,11 @@ const keyToAngle = {
 };
 
 function handleKeyDown(event) {
-    if (event.key in keyToAngle) {
-        console.log(`Key pressed: ${event.key}`);
-        keysPressed[event.key] = true;
-        
+    const key = event.key.toUpperCase();
+    if (key in keyToAngle) {
+        console.log(`Key pressed: ${key}`);
+        keysPressed[key] = true;
+
         updateWASDMovementAngle();
         updateJoystickActive();
 
@@ -413,9 +414,10 @@ function handleKeyDown(event) {
 }
 
 function handleKeyUp(event) {
-    if (event.key in keyToAngle) {
-        console.log(`Key released: ${event.key}`);
-        keysPressed[event.key] = false;
+    const key = event.key.toUpperCase();
+    if (key in keyToAngle) {
+        console.log(`Key released: ${key}`);
+        keysPressed[key] = false;
 
         updateWASDMovementAngle();
         updateJoystickActive();
@@ -424,6 +426,7 @@ function handleKeyUp(event) {
         console.log('Current WASD movement angle:', WASDMovementAngle);
     }
 }
+
 
 
 function updateJoystickActive() {
