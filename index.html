@@ -361,15 +361,84 @@ function updateChaser(timestamp) {
         lastChaserAnimationTime = timestamp;
     }
 }
-
-
-    function WASDcontrols() {
-
-        WASDMovementAngle = null;
-
-        calculateDirectionFromJoystick(WASDMovementAngle);
-        joystickActive = true;
+        
+let mouseDetected = false;
+function GameForMouse() {
+    if (!mouseDetected) {
+        mouseDetected = true;
+        joypad.style.opacity = '0';
+        window.removeEventListener('mousemove', GameForMouse);
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);     
     }
+}
+window.addEventListener('mousemove', GameForMouse);
+
+
+
+        
+let WASDMovementAngle = null;
+
+let keysPressed = { W: false, A: false, S: false, D: false };
+
+const keyToAngle = {
+    W: 0,
+    A: 180,
+    S: 90,
+    D: 270 
+};
+
+function handleKeyDown(event) {
+    if (event.key in keyToAngle) {
+        keysPressed[event.key] = true;
+        updateWASDMovementAngle();
+        updateJoystickActive();
+    }
+}
+
+function handleKeyUp(event) {
+    if (event.key in keyToAngle) {
+        keysPressed[event.key] = false;
+        updateWASDMovementAngle();
+        updateJoystickActive();
+    }
+}
+
+function updateWASDMovementAngle() {
+    if (keysPressed.W && !keysPressed.A && !keysPressed.S && !keysPressed.D) {
+        WASDMovementAngle = 0;
+    } else if (!keysPressed.W && keysPressed.A && !keysPressed.S && !keysPressed.D) {
+        WASDMovementAngle = 180;
+    } else if (!keysPressed.W && !keysPressed.A && keysPressed.S && !keysPressed.D) {
+        WASDMovementAngle = 90;
+    } else if (!keysPressed.W && !keysPressed.A && !keysPressed.S && keysPressed.D) {
+        WASDMovementAngle = 270;
+    } else {
+
+        let angle = 0;
+        if (keysPressed.W) angle += 0;
+        if (keysPressed.A) angle += 180;
+        if (keysPressed.S) angle += 90;
+        if (keysPressed.D) angle += 270;
+
+        WASDMovementAngle = angle / (Object.values(keysPressed).filter(v => v).length);
+    }
+    calculateDirectionFromJoystick(WASDMovementAngle);
+}
+
+function updateJoystickActive() {
+    joystickActive = Object.values(keysPressed).includes(true);
+}
+
+function WASDcontrols() {
+    WASDMovementAngle = null;
+    calculateDirectionFromJoystick(WASDMovementAngle);
+    joystickActive = true;
+}
+
+
+
+        
         
     gameLoop(0);
 </script>
