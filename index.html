@@ -374,18 +374,14 @@ function GameForMouse() {
 }
 window.addEventListener('mousemove', GameForMouse);
 
-
-
-        
 let WASDMovementAngle = null;
-
 let keysPressed = { W: false, A: false, S: false, D: false };
 
 const keyToAngle = {
     W: 0,
     A: 180,
     S: 90,
-    D: 270 
+    D: 270
 };
 
 function handleKeyDown(event) {
@@ -414,14 +410,12 @@ function updateWASDMovementAngle() {
     } else if (!keysPressed.W && !keysPressed.A && !keysPressed.S && keysPressed.D) {
         WASDMovementAngle = 270;
     } else {
-
         let angle = 0;
         if (keysPressed.W) angle += 0;
         if (keysPressed.A) angle += 180;
         if (keysPressed.S) angle += 90;
         if (keysPressed.D) angle += 270;
-
-        WASDMovementAngle = angle / (Object.values(keysPressed).filter(v => v).length);
+        WASDMovementAngle = angle / Object.values(keysPressed).filter(v => v).length;
     }
     calculateDirectionFromJoystick(WASDMovementAngle);
 }
@@ -433,9 +427,13 @@ function updateJoystickActive() {
 function WASDcontrols() {
     WASDMovementAngle = null;
     calculateDirectionFromJoystick(WASDMovementAngle);
-    joystickActive = true;
+    joystickActive = false;
 }
 
+function calculateDirectionFromJoystick(angle) {
+    console.log('Joystick Direction Angle:', angle);
+    console.log('Joystick Active:', joystickActive);
+}
 
 
         
