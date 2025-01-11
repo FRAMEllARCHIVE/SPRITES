@@ -438,11 +438,11 @@ function updateWASDMovementAngle() {
     if (keysPressed.W && !keysPressed.A && !keysPressed.S && !keysPressed.D) {
         WASDMovementAngle = 0;
     } else if (!keysPressed.W && keysPressed.A && !keysPressed.S && !keysPressed.D) {
-        WASDMovementAngle = 180;
-    } else if (!keysPressed.W && !keysPressed.A && keysPressed.S && !keysPressed.D) {
-        WASDMovementAngle = 90;
-    } else if (!keysPressed.W && !keysPressed.A && !keysPressed.S && keysPressed.D) {
         WASDMovementAngle = 270;
+    } else if (!keysPressed.W && !keysPressed.A && keysPressed.S && !keysPressed.D) {
+        WASDMovementAngle = 180;
+    } else if (!keysPressed.W && !keysPressed.A && !keysPressed.S && keysPressed.D) {
+        WASDMovementAngle = 90;
     } else {
         let angle = 0;
         if (keysPressed.W) angle += 0;
