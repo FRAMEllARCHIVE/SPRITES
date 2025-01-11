@@ -94,21 +94,26 @@
         .idle2 { background-position: -0px -100px; }
         .idle3 { background-position: -0px -200px; }
         
-        #joypad {
-            position: absolute;
-            bottom: 10%;
-            left: 10%;
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.01s ease-in, opacity 11s ease-out 0.01s;
-                        user-select: none;
-        }
+#joypad {
+    position: absolute;
+    bottom: 10%;
+    left: 10%;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.01s ease-in, opacity 11s ease-out;
+    user-select: none;
+}
+
+#joypad.visible {
+    opacity: 0.4;
+}
+
         #joypadInner {
             width: 50px;
             height: 50px;
@@ -343,7 +348,6 @@ function updateWASDMovementAngle() {
         if (gamepadIndex === event.gamepad.index) {
             gamepadIndex = null;
         }
-        joypad.style.opacity = '0.4';
     }
         
 function gameLoop(timestamp) {
@@ -357,15 +361,14 @@ function gameLoop(timestamp) {
     window.addEventListener('gamepadconnected', connectGamepad);
     window.addEventListener('gamepaddisconnected', disconnectGamepad);
         
-    window.addEventListener('touchstart', (event) => {
-        joypad.style.opacity = '0.4';
-    });
-        
-    window.addEventListener('touchend', (event) => {
-        joypad.style.opacity = '0';
-    });
+window.addEventListener('touchstart', (event) => {
+    joypad.classList.add('visible');
+});
 
-        
+window.addEventListener('touchend', (event) => {
+    joypad.classList.remove('visible');
+});
+   
     joypad.addEventListener('touchstart', (event) => {
         joypad.style.opacity = '1';
         updateJoypadCenter();
