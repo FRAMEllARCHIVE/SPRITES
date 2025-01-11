@@ -161,114 +161,19 @@
         joypadCenter.y = rect.top + joypad.offsetHeight / 2;
     }
 
-
-
-let joypadInnerPos = { x: joypadRadius - joypadInner.offsetWidth / 2, y: joypadRadius - joypadInner.offsetHeight / 2 };
-
-function moveJoypadInner(x, y) {
-    if (keyControlActive) {
-        // When keys are pressed, update joystick position incrementally
-        console.log("Key control active, moving joypad inner.");
-        if (keyPressed['w']) {
-            joypadInnerPos.y = Math.max(0, joypadInnerPos.y - 2); // Move up
-            console.log("Moving up");
-        }
-        if (keyPressed['s']) {
-            joypadInnerPos.y = Math.min(joypadRadius * 2 - joypadInner.offsetHeight, joypadInnerPos.y + 2); // Move down
-            console.log("Moving down");
-        }
-        if (keyPressed['a']) {
-            joypadInnerPos.x = Math.max(0, joypadInnerPos.x - 2); // Move left
-            console.log("Moving left");
-        }
-        if (keyPressed['d']) {
-            joypadInnerPos.x = Math.min(joypadRadius * 2 - joypadInner.offsetWidth, joypadInnerPos.x + 2); // Move right
-            console.log("Moving right");
-        }
-    } else {
-        // For touch-based input, move joypad inner as before
-        let dx = x - joypadCenter.x;
-        let dy = y - joypadCenter.y;
+    function moveJoypadInner(x, y) {
+        const dx = x - joypadCenter.x;
+        const dy = y - joypadCenter.y;
         joystickDistance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
         joystickAngle = Math.atan2(dy, dx);
-        
-        joypadInnerPos.x = Math.cos(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetWidth / 2;
-        joypadInnerPos.y = Math.sin(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetHeight / 2;
+
+        joypadInner.style.left = `${Math.cos(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetWidth / 2}px`;
+        joypadInner.style.top = `${Math.sin(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetHeight / 2}px`;
+
+        calculateDirectionFromJoystick(joystickAngle);
+        joystickActive = true;
     }
-
-    // Update the joypad inner element with new position
-    joypadInner.style.left = `${joypadInnerPos.x}px`;
-    joypadInner.style.top = `${joypadInnerPos.y}px`;
-
-    // Recalculate joystick angle and direction based on new position
-    let dx = joypadInnerPos.x - joypadCenter.x;
-    let dy = joypadInnerPos.y - joypadCenter.y;
-    joystickDistance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
-    joystickAngle = Math.atan2(dy, dx);
-    
-    calculateDirectionFromJoystick(joystickAngle);
-    joystickActive = true;
-    console.log(`Joystick active. Direction: ${direction}, Distance: ${joystickDistance}`);
-}
-
-let keyPressed = { 'w': false, 'a': false, 's': false, 'd': false };
-let keyControlActive = false;
-
-function handleKeyDown(event) {
-    if (event.key === 'w' || event.key === 'W') {
-        keyPressed['w'] = true;
-        console.log("Key 'W' pressed");
-    }
-    if (event.key === 'a' || event.key === 'A') {
-        keyPressed['a'] = true;
-        console.log("Key 'A' pressed");
-    }
-    if (event.key === 's' || event.key === 'S') {
-        keyPressed['s'] = true;
-        console.log("Key 'S' pressed");
-    }
-    if (event.key === 'd' || event.key === 'D') {
-        keyPressed['d'] = true;
-        console.log("Key 'D' pressed");
-    }
-
-    keyControlActive = true; // Enable key control when WASD is pressed
-    moveJoypadInner(joypadCenter.x, joypadCenter.y); // Update joypad position with WASD input
-}
-
-function handleKeyUp(event) {
-    if (event.key === 'w' || event.key === 'W') {
-        keyPressed['w'] = false;
-        console.log("Key 'W' released");
-    }
-    if (event.key === 'a' || event.key === 'A') {
-        keyPressed['a'] = false;
-        console.log("Key 'A' released");
-    }
-    if (event.key === 's' || event.key === 'S') {
-        keyPressed['s'] = false;
-        console.log("Key 'S' released");
-    }
-    if (event.key === 'd' || event.key === 'D') {
-        keyPressed['d'] = false;
-        console.log("Key 'D' released");
-    }
-
-    // If no keys are pressed, return to the idle position in the center of the joypad
-    if (!keyPressed['w'] && !keyPressed['a'] && !keyPressed['s'] && !keyPressed['d']) {
-        keyControlActive = false; // Disable key control
-        joypadInnerPos.x = joypadRadius - joypadInner.offsetWidth / 2; // Reset to center position
-        joypadInnerPos.y = joypadRadius - joypadInner.offsetHeight / 2; // Reset to center position
-        moveJoypadInner(joypadCenter.x, joypadCenter.y); // Reset joystick inner position to the center
-        console.log("No keys pressed, joypad returned to center.");
-    }
-}
-
-
-
-        
-
-
+ 
         function calculateDirectionFromJoystick(angle) {
         let angleDeg = (angle * (180 / Math.PI) + 360) % 360;
 
