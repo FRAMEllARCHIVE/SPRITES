@@ -392,9 +392,9 @@ let keysPressed = { W: false, A: false, S: false, D: false };
 
 const keyToAngle = {
     W: 0,
-    A: 180,
-    S: 90,
-    D: 270
+    A: 270,
+    S: 180,
+    D: 90
 };
 
 function handleKeyDown(event) {
@@ -446,9 +446,9 @@ function updateWASDMovementAngle() {
     } else {
         let angle = 0;
         if (keysPressed.W) angle += 0;
-        if (keysPressed.A) angle += 180;
-        if (keysPressed.S) angle += 90;
-        if (keysPressed.D) angle += 270;
+        if (keysPressed.A) angle += 270;
+        if (keysPressed.S) angle += 180;
+        if (keysPressed.D) angle += 90;
         WASDMovementAngle = angle / Object.values(keysPressed).filter(v => v).length;
     }
     calculateDirectionFromJoystick(WASDMovementAngle);
