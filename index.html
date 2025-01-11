@@ -106,7 +106,7 @@
             justify-content: center;
             align-items: center;
             opacity: 0;
-            transition: opacity 0.1s ease-in, opacity 11s ease-out;
+            transition: opacity 0.01s ease-in, opacity 11s ease-out;
                         user-select: none;
         }
         #joypadInner {
@@ -343,7 +343,7 @@ function updateWASDMovementAngle() {
         if (gamepadIndex === event.gamepad.index) {
             gamepadIndex = null;
         }
-        joypad.style.opacity = '1';
+        joypad.style.opacity = '0.4';
     }
         
 function gameLoop(timestamp) {
@@ -358,8 +358,9 @@ function gameLoop(timestamp) {
     window.addEventListener('gamepaddisconnected', disconnectGamepad);
         
     window.addEventListener('touchstart', (event) => {
-        joypad.style.opacity = '1';
+        joypad.style.opacity = '0.4';
     });
+        
     window.addEventListener('touchend', (event) => {
         joypad.style.opacity = '0';
     });
