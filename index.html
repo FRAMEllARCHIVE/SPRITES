@@ -367,9 +367,13 @@ function GameForMouse() {
         mouseDetected = true;
         joypad.style.opacity = '0';
         window.removeEventListener('mousemove', GameForMouse);
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);     
     }
 }
 window.addEventListener('mousemove', GameForMouse);
+        
+
         
 gameLoop(0);
 </script>
