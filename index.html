@@ -129,18 +129,18 @@
     </div>
 
     <script>
-    const player = document.getElementById('player');
-    const joypad = document.getElementById('joypad');
-    const joypadInner = document.getElementById('joypadInner');
-    const directions = { SSW: 'SSW', SW: 'SW', W: 'W', NW: 'NW', N: 'N', NE: 'NE', E: 'E', SEE: 'SEE', SE: 'SE', S: 'S', SWW: 'SWW', NWW: 'NWW', SSE: 'SSE', NNE: 'NNE', NNW: 'NNW', NEE: 'NEE' };
+    let player = document.getElementById('player');
+    let joypad = document.getElementById('joypad');
+    let joypadInner = document.getElementById('joypadInner');
+    let directions = { SSW: 'SSW', SW: 'SW', W: 'W', NW: 'NW', N: 'N', NE: 'NE', E: 'E', SEE: 'SEE', SE: 'SE', S: 'S', SWW: 'SWW', NWW: 'NWW', SSE: 'SSE', NNE: 'NNE', NNW: 'NNW', NEE: 'NEE' };
     let posX = 50, posY = 50;
     let velocityX = 0, velocityY = 0;
-    const friction = 0.06;
-    const maxSpeed = 0.8;
+    let friction = 0.06;
+    let maxSpeed = 0.8;
     let animationFrame = 1;
-    const maxFrames = 3;
+    let maxFrames = 3;
     let idleFrame = 1;
-    const maxIdleFrames = 3;
+    let maxIdleFrames = 3;
     let joypadCenter = { x: 0, y: 0 };
     let joypadRadius = joypad.offsetWidth / 2;
     let isIdle = true;
@@ -149,23 +149,23 @@
     let joystickAngle = 0;
     let joystickDistance = 0;
 
-    const frameRate = 60;
-    const animationFrameRate = 5;
-    const animationInterval = 1000 / animationFrameRate;
+    let frameRate = 60;
+    let animationFrameRate = 5;
+    let animationInterval = 1000 / animationFrameRate;
     let lastAnimationTime = 0;
     let direction = 'S';
 
     let gamepadIndex = null;
 
     function updateJoypadCenter() {
-        const rect = joypad.getBoundingClientRect();
+        let rect = joypad.getBoundingClientRect();
         joypadCenter.x = rect.left + joypad.offsetWidth / 2;
         joypadCenter.y = rect.top + joypad.offsetHeight / 2;
     }
 
     function moveJoypadInner(x, y) {
-        const dx = x - joypadCenter.x;
-        const dy = y - joypadCenter.y;
+        let dx = x - joypadCenter.x;
+        let dy = y - joypadCenter.y;
         joystickDistance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
         joystickAngle = Math.atan2(dy, dx);
 
@@ -177,7 +177,7 @@
     }
 
     function calculateDirectionFromJoystick(angle) {
-        const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
+        let angleDeg = (angle * (180 / Math.PI) + 360) % 360;
 
         if (angleDeg >= 348.75 || angleDeg < 11.25) direction = 'E';
         else if (angleDeg >= 11.25 && angleDeg < 33.75) direction = 'SEE';
@@ -235,12 +235,12 @@
     function handleGamepadInput() {
         if (gamepadIndex === null) return;
 
-        const gamepad = navigator.getGamepads()[gamepadIndex];
+        let gamepad = navigator.getGamepads()[gamepadIndex];
         if (!gamepad) return;
 
-        const threshold = 0.2;
-        const axisX = gamepad.axes[0];
-        const axisY = gamepad.axes[1];
+        let threshold = 0.2;
+        let axisX = gamepad.axes[0];
+        let axisY = gamepad.axes[1];
 
         if (Math.abs(axisX) > threshold || Math.abs(axisY) > threshold) {
             joystickAngle = Math.atan2(axisY, axisX);
@@ -299,17 +299,17 @@ function gameLoop(timestamp) {
 
         //chaser logic
 let chaserVelocityX = 0, chaserVelocityY = 0;
-const chaserFriction = 0.06;
+let chaserFriction = 0.06;
 let chaserDirection = 'S';
 let chaserAnimationFrame = 1;
 let lastChaserAnimationTime = 0;
-const chaser = document.getElementById('chaser');
+let chaser = document.getElementById('chaser');
 let chaserX = 20, chaserY = 20;
-const chaserSpeed = 0.02;
+let chaserSpeed = 0.02;
 
 function calculateDirectionFromVelocity(vx, vy) {
-    const angle = Math.atan2(vy, vx);
-    const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
+    let angle = Math.atan2(vy, vx);
+    let angleDeg = (angle * (180 / Math.PI) + 360) % 360;
 
     if (angleDeg >= 348.75 || angleDeg < 11.25) return 'E';
     else if (angleDeg >= 11.25 && angleDeg < 33.75) return 'SEE';
@@ -330,9 +330,9 @@ function calculateDirectionFromVelocity(vx, vy) {
 }
         
 function updateChaser(timestamp) {
-    const dx = posX - chaserX;
-    const dy = posY - chaserY;
-    const distance = Math.sqrt(dx * dx + dy * dy);
+    let dx = posX - chaserX;
+    let dy = posY - chaserY;
+    let distance = Math.sqrt(dx * dx + dy * dy);
 
     if (distance > 0.5) {
         chaserVelocityX += (dx / distance) * chaserSpeed;
