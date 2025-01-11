@@ -156,6 +156,8 @@
     let lastAnimationTime = 0;
     let direction = 'S';
 
+    let keysPressed = {};
+
     let gamepadIndex = null;
 
     function updateJoypadCenter() {
@@ -212,29 +214,53 @@
         }
     }
 
-function updatePosition() {
-    if (joystickActive) {
-        velocityX = Math.cos(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
-        velocityY = Math.sin(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
-    } else if (WASDMovementAngle !== null) {
-        velocityX = Math.cos(WASDMovementAngle * Math.PI / 180) * maxSpeed;
-        velocityY = Math.sin(WASDMovementAngle * Math.PI / 180) * maxSpeed;
-    } else {
-        velocityX *= (1 - friction);
-        velocityY *= (1 - friction);
+    function updatePosition() {
+        if (joystickActive) {
+            velocityX = Math.cos(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
+            velocityY = Math.sin(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
+        } else {
+            // WASD Movement Handling
+            if (keysPressed['W']) velocityY = -maxSpeed;
+            if (keysPressed['S']) velocityY = maxSpeed;
+            if (keysPressed['A']) velocityX = -maxSpeed;
+            if (keysPressed['D']) velocityX = maxSpeed;
+            
+            // Apply friction
+            velocityX *= (1 - friction);
+            velocityY *= (1 - friction);
+        }
+
+        posX += velocityX;
+        posY += velocityY;
+
+        posX = Math.max(0, Math.min(100, posX));
+        posY = Math.max(0, Math.min(100, posY));
+
+        player.style.left = `${posX}%`;
+        player.style.top = `${posY}%`;
+
+        isIdle = !joystickActive && !Object.values(keysPressed).includes(true) && Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
     }
 
-    posX += velocityX;
-    posY += velocityY;
+    window.addEventListener('keydown', (event) => {
+        handleKeyDown(event);
+    });
 
-    posX = Math.max(0, Math.min(100, posX));
-    posY = Math.max(0, Math.min(100, posY));
+    window.addEventListener('keyup', (event) => {
+        handleKeyUp(event);
+    });
 
-    player.style.left = `${posX}%`;
-    player.style.top = `${posY}%`;
+    function handleKeyDown(event) {
+        if (event.key === 'W' || event.key === 'A' || event.key === 'S' || event.key === 'D') {
+            keysPressed[event.key] = true;
+        }
+    }
 
-    isIdle = !joystickActive && !Object.values(keysPressed).includes(true) && Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
-}
+    function handleKeyUp(event) {
+        if (event.key === 'W' || event.key === 'A' || event.key === 'S' || event.key === 'D') {
+            keysPressed[event.key] = false;
+        }
+    }
 
 
     function handleGamepadInput() {
@@ -312,24 +338,6 @@ function GameForMouse() {
 }
         
 window.addEventListener('mousemove', GameForMouse);
-
-window.addEventListener('keydown', (event) => {
-    handleKeyDown(event);
-});
-
-window.addEventListener('keyup', (event) => {
-    handleKeyUp(event);
-});
-
-function handleKeyDown(event) {
-}
-
-function handleKeyUp(event) {
-}
-
-function updateWASDMovementAngle() {
-    calculateDirectionFromJoystick(WASDinputAngle);
-}
 
     gameLoop(0);
 </script>
