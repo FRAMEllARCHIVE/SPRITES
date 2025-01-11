@@ -379,12 +379,10 @@ function GameForMouse() {
 window.addEventListener('mousemove', GameForMouse);
         
 window.addEventListener('keydown', (event) => {
-    console.log('Keydown event fired:', event.key);
     handleKeyDown(event);
 });
 
 window.addEventListener('keyup', (event) => {
-    console.log('Keyup event fired:', event.key);
     handleKeyUp(event);
 });
 
@@ -431,7 +429,9 @@ function handleKeyUp(event) {
 
 function updateJoystickActive() {
     joystickActive = Object.values(keysPressed).includes(true);
+    console.log('Joystick active state:', joystickActive);
 }
+
 
 
 function updateWASDMovementAngle() {
