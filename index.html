@@ -161,18 +161,64 @@
         joypadCenter.y = rect.top + joypad.offsetHeight / 2;
     }
 
-    function moveJoypadInner(x, y) {
+let joypadInnerPos = { x: joypadRadius - joypadInner.offsetWidth / 2, y: joypadRadius - joypadInner.offsetHeight / 2 };
+
+function moveJoypadInner(x, y) {
+    if (keyControlActive) {
+
+        if (keyPressed['w']) joypadInnerPos.y = Math.max(0, joypadInnerPos.y - 2);
+        if (keyPressed['s']) joypadInnerPos.y = Math.min(joypadRadius * 2 - joypadInner.offsetHeight, joypadInnerPos.y + 2); // Move down
+        if (keyPressed['a']) joypadInnerPos.x = Math.max(0, joypadInnerPos.x - 2);
+        if (keyPressed['d']) joypadInnerPos.x = Math.min(joypadRadius * 2 - joypadInner.offsetWidth, joypadInnerPos.x + 2); // Move right
+    } else {
+
         let dx = x - joypadCenter.x;
         let dy = y - joypadCenter.y;
         joystickDistance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
         joystickAngle = Math.atan2(dy, dx);
-
-        joypadInner.style.left = `${Math.cos(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetWidth / 2}px`;
-        joypadInner.style.top = `${Math.sin(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetHeight / 2}px`;
-
-        calculateDirectionFromJoystick(joystickAngle);
-        joystickActive = true;
+        
+        joypadInnerPos.x = Math.cos(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetWidth / 2;
+        joypadInnerPos.y = Math.sin(joystickAngle) * joystickDistance + joypadRadius - joypadInner.offsetHeight / 2;
     }
+
+    joypadInner.style.left = `${joypadInnerPos.x}px`;
+    joypadInner.style.top = `${joypadInnerPos.y}px`;
+
+    let dx = joypadInnerPos.x - joypadCenter.x;
+    let dy = joypadInnerPos.y - joypadCenter.y;
+    joystickDistance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
+    joystickAngle = Math.atan2(dy, dx);
+    
+    calculateDirectionFromJoystick(joystickAngle);
+    joystickActive = true;
+}
+
+let keyPressed = { 'w': false, 'a': false, 's': false, 'd': false };
+let keyControlActive = false;
+
+function handleKeyDown(event) {
+    if (event.key === 'w' || event.key === 'W') keyPressed['w'] = true;
+    if (event.key === 'a' || event.key === 'A') keyPressed['a'] = true;
+    if (event.key === 's' || event.key === 'S') keyPressed['s'] = true;
+    if (event.key === 'd' || event.key === 'D') keyPressed['d'] = true;
+
+    keyControlActive = true;
+    moveJoypadInner(joypadCenter.x, joypadCenter.y);
+}
+
+function handleKeyUp(event) {
+    if (event.key === 'w' || event.key === 'W') keyPressed['w'] = false;
+    if (event.key === 'a' || event.key === 'A') keyPressed['a'] = false;
+    if (event.key === 's' || event.key === 'S') keyPressed['s'] = false;
+    if (event.key === 'd' || event.key === 'D') keyPressed['d'] = false;
+
+    if (!keyPressed['w'] && !keyPressed['a'] && !keyPressed['s'] && !keyPressed['d']) {
+        keyControlActive = false;
+        moveJoypadInner(joypadCenter.x, joypadCenter.y);
+    }
+}
+
+        
 
 
         function calculateDirectionFromJoystick(angle) {
