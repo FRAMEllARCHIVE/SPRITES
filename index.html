@@ -361,6 +361,25 @@ function updateChaser(timestamp) {
     }
 }
 
+joypad.addEventListener('mousedown', (event) => {
+    updateJoypadCenter();
+    moveJoypadInner(event.clientX, event.clientY);
+    joypad.addEventListener('mousemove', onMouseMove);
+});
+
+joypad.addEventListener('mouseup', (event) => {
+    joystickActive = false;
+    velocityX = 0;
+    velocityY = 0;
+    joypadInner.style.left = `${joypadRadius - joypadInner.offsetWidth / 2}px`;
+    joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
+    joypad.removeEventListener('mousemove', onMouseMove);
+});
+
+function onMouseMove(event) {
+    moveJoypadInner(event.clientX, event.clientY);
+}
+        
     gameLoop(0);
 </script>
 </body>
