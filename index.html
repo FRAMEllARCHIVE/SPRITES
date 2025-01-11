@@ -24,12 +24,14 @@
             overflow: hidden;
         }
         
-    #player, #chaser {
+#player, #chaser {
     position: absolute;
     width: 100px;
     height: 100px;
     transform: translate(-50%, -50%);
     transition: top 0.1s, left 0.1s;
+    max-width: 5vh;
+    max-height: 5vh;
 }
         #player {
            background-image: url('spritesheet.png');
@@ -195,19 +197,20 @@
         else if (angleDeg >= 326.25 && angleDeg < 348.75) direction = 'NEE';
     }
 
-    function updateAnimation(timestamp) {
-        if (timestamp - lastAnimationTime > animationInterval) {
-            lastAnimationTime = timestamp;
+function updateAnimation(timestamp) {
+    if (timestamp - lastAnimationTime > animationInterval) {
+        lastAnimationTime = timestamp;
 
-            if (isIdle) {
-                player.className = `A idle${idleFrame}`;
-                idleFrame = (idleFrame % maxIdleFrames) + 1;
-            } else {
-                player.className = `A ${directions[direction]}${animationFrame}`;
-                animationFrame = (animationFrame % maxFrames) + 1;
-            }
+        if (isIdle) {
+            player.className = `A idle${idleFrame}`;
+            idleFrame = (idleFrame % maxIdleFrames) + 1;
+        } else {
+            player.className = `A ${directions[direction]}${animationFrame}`;
+            player.style.backgroundPosition = `-${100 * (animationFrame - 1)}px 0`;
+            animationFrame = (animationFrame % maxFrames) + 1;
         }
     }
+}
 
 
 
@@ -422,6 +425,7 @@ function updateChaser(timestamp) {
 
     if (timestamp - lastChaserAnimationTime > animationInterval) {
         chaser.className = `A ${directions[chaserDirection]}${chaserAnimationFrame}`;
+        chaser.style.backgroundPosition = `-${100 * (chaserAnimationFrame - 1)}px 0`;
         chaserAnimationFrame = (chaserAnimationFrame % maxFrames) + 1;
         lastChaserAnimationTime = timestamp;
     }
