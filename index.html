@@ -367,6 +367,7 @@ function updateChaser(timestamp) {
 }
         
 let mouseDetected = false;
+        
 function GameForMouse() {
     if (!mouseDetected) {
         mouseDetected = true;
@@ -374,9 +375,12 @@ function GameForMouse() {
         window.removeEventListener('mousemove', GameForMouse);
     }
 }
+        
 window.addEventListener('mousemove', GameForMouse);
-        window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('keyup', handleKeyUp);     
+        
+window.addEventListener('keydown', handleKeyDown);
+window.addEventListener('keyup', handleKeyUp);    
+        
 let WASDMovementAngle = null;
 let keysPressed = { W: false, A: false, S: false, D: false };
 
@@ -389,27 +393,27 @@ const keyToAngle = {
 
 function handleKeyDown(event) {
     if (event.key in keyToAngle) {
-        console.log(`Key pressed: ${event.key}`);  // Log the key being pressed
+        console.log(`Key pressed: ${event.key}`);
         keysPressed[event.key] = true;
         
         updateWASDMovementAngle();
         updateJoystickActive();
 
-        console.log('Updated keysPressed:', keysPressed);  // Log the updated keysPressed object
-        console.log('Current WASD movement angle:', WASDMovementAngle);  // Log the updated movement angle
+        console.log('Updated keysPressed:', keysPressed);
+        console.log('Current WASD movement angle:', WASDMovementAngle);
     }
 }
 
 function handleKeyUp(event) {
     if (event.key in keyToAngle) {
-        console.log(`Key released: ${event.key}`);  // Log the key being released
+        console.log(`Key released: ${event.key}`);
         keysPressed[event.key] = false;
 
         updateWASDMovementAngle();
         updateJoystickActive();
 
-        console.log('Updated keysPressed:', keysPressed);  // Log the updated keysPressed object
-        console.log('Current WASD movement angle:', WASDMovementAngle);  // Log the updated movement angle
+        console.log('Updated keysPressed:', keysPressed);
+        console.log('Current WASD movement angle:', WASDMovementAngle);
     }
 }
 
