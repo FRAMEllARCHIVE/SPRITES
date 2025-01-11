@@ -286,7 +286,7 @@ function updateWASDMovementAngle() {
 
     if (horizontal !== 0 || vertical !== 0) {
         WASDMovementAngle = Math.atan2(vertical, horizontal) * (180 / Math.PI);
-        let WASDMovementAngle2 = Math.atan2(vertical, horizontal)
+        let WASDMovementAngle2 = Math.atan2(vertical, horizontal);
         calculateDirectionFromJoystick(WASDMovementAngle2);
     } else {
         WASDMovementAngle = null;
