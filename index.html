@@ -362,6 +362,15 @@ function updateChaser(timestamp) {
     }
 }
 
+
+    function WASDcontrols() {
+
+        WASDMovementAngle = null;
+
+        calculateDirectionFromJoystick(WASDMovementAngle);
+        joystickActive = true;
+    }
+        
     gameLoop(0);
 </script>
 </body>
