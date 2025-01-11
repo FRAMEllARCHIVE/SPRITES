@@ -376,10 +376,19 @@ window.addEventListener('mousemove', GameForMouse);
 let keys = { W: false, A: false, S: false, D: false };
 
 function handleKeyDown(event) {
-    if (event.key === 'W') keys.W = true;
-    if (event.key === 'A') keys.A = true;
-    if (event.key === 'S') keys.S = true;
-    if (event.key === 'D') keys.D = true;
+    if (event.key === 'W') {
+        keyState.W = true;
+        console.log("W key pressed");
+    } else if (event.key === 'A') {
+        keyState.A = true;
+        console.log("A key pressed");
+    } else if (event.key === 'S') {
+        keyState.S = true;
+        console.log("S key pressed");
+    } else if (event.key === 'D') {
+        keyState.D = true;
+        console.log("D key pressed");
+    }
 }
 
 function handleKeyUp(event) {
