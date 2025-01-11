@@ -390,19 +390,30 @@ const keyToAngle = {
 
 function handleKeyDown(event) {
     if (event.key in keyToAngle) {
+        console.log(`Key pressed: ${event.key}`);  // Log the key being pressed
         keysPressed[event.key] = true;
+        
         updateWASDMovementAngle();
         updateJoystickActive();
+
+        console.log('Updated keysPressed:', keysPressed);  // Log the updated keysPressed object
+        console.log('Current WASD movement angle:', WASDMovementAngle);  // Log the updated movement angle
     }
 }
 
 function handleKeyUp(event) {
     if (event.key in keyToAngle) {
+        console.log(`Key released: ${event.key}`);  // Log the key being released
         keysPressed[event.key] = false;
+
         updateWASDMovementAngle();
         updateJoystickActive();
+
+        console.log('Updated keysPressed:', keysPressed);  // Log the updated keysPressed object
+        console.log('Current WASD movement angle:', WASDMovementAngle);  // Log the updated movement angle
     }
 }
+
 
 function updateJoystickActive() {
     joystickActive = Object.values(keysPressed).includes(true);
