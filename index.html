@@ -132,6 +132,16 @@
     </div>
 
     <script>
+
+document.addEventListener("touchstart", function(event) {
+    event.preventDefault();
+}, { passive: false });
+
+document.addEventListener("touchmove", function(event) {
+    event.preventDefault();
+}, { passive: false });
+
+        
     let player = document.getElementById('player');
     let joypad = document.getElementById('joypad');
     let joypadInner = document.getElementById('joypadInner');
