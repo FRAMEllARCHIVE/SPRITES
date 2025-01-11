@@ -211,6 +211,22 @@
         }
     }
 
+
+
+
+        
+
+let keysPressed = {
+    w: false,
+    a: false,
+    s: false,
+    d: false,
+};
+
+let WASDMovementAngle = null;
+
+        
+
 function updatePosition() {
     if (joystickActive) {
         velocityX = Math.cos(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
@@ -235,6 +251,51 @@ function updatePosition() {
     isIdle = !joystickActive && !Object.values(keysPressed).includes(true) && Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
 }
 
+window.addEventListener('keydown', (event) => {
+    handleKeyDown(event);
+});
+
+window.addEventListener('keyup', (event) => {
+    handleKeyUp(event);
+});
+
+function handleKeyDown(event) {
+    const key = event.key.toLowerCase();
+    if (keysPressed.hasOwnProperty(key)) {
+        keysPressed[key] = true;
+        updateWASDMovementAngle();
+    }
+}
+
+function handleKeyUp(event) {
+    const key = event.key.toLowerCase();
+    if (keysPressed.hasOwnProperty(key)) {
+        keysPressed[key] = false;
+        updateWASDMovementAngle();
+    }
+}
+
+function updateWASDMovementAngle() {
+    let horizontal = 0;
+    let vertical = 0;
+
+    if (keysPressed.w) vertical -= 1;
+    if (keysPressed.s) vertical += 1;
+    if (keysPressed.a) horizontal -= 1;
+    if (keysPressed.d) horizontal += 1;
+
+    if (horizontal !== 0 || vertical !== 0) {
+        WASDMovementAngle = Math.atan2(vertical, horizontal) * (180 / Math.PI);
+    } else {
+        WASDMovementAngle = null;
+    }
+}
+
+
+
+
+        
+        
 
     function handleGamepadInput() {
         if (gamepadIndex === null) return;
@@ -378,23 +439,6 @@ function GameForMouse() {
         
 window.addEventListener('mousemove', GameForMouse);
 
-window.addEventListener('keydown', (event) => {
-    handleKeyDown(event);
-});
-
-window.addEventListener('keyup', (event) => {
-    handleKeyUp(event);
-});
-
-function handleKeyDown(event) {
-}
-
-function handleKeyUp(event) {
-}
-
-function updateWASDMovementAngle() {
-    calculateDirectionFromJoystick(WASDinputAngle);
-}
 
 
     gameLoop(0);
