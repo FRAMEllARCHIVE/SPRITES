@@ -361,24 +361,17 @@ function updateChaser(timestamp) {
     }
 }
 
-    let mouseDetected = false;
-    function GameForMouse(event) {
-        if (!mouseDetected) {
-            mouseDetected = true;
-            joypad.style.opacity = '0';
-            window.removeEventListener('mousemove', GameForMouse);
-
-            // Set mouse position tracking
-            updateJoypadCenter();
-            moveJoypadInner(event.clientX, event.clientY);  // Move the joystick based on mouse position
-        }
-
-        // Update player movement based on mouse position
-        moveJoypadInner(event.clientX, event.clientY);
+let mouseDetected = false;
+function GameForMouse() {
+    if (!mouseDetected) {
+        mouseDetected = true;
+        joypad.style.opacity = '0';
+        window.removeEventListener('mousemove', GameForMouse);
     }
-
-    window.addEventListener('mousemove', GameForMouse);
-    gameLoop(0);
+}
+window.addEventListener('mousemove', GameForMouse);
+        
+gameLoop(0);
 </script>
 </body>
 </html>
