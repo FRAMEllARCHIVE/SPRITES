@@ -23,22 +23,15 @@
             border-radius: 3vh;
             overflow: hidden;
         }
-
-    #player, #chaser {
-    position: absolute;
-    width: 100px;
-    height: 100px;
-    transform: translate(-50%, -50%);
-    transition: top 0.1s, left 0.1s;
-}
         #player {
-           background-image: url('spritesheet.png');
-}
-        #chaser {
-            background-image: url('spritesheet.png');
-}
-        
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            transform: translate(-50%, -50%);
+            transition: top 0.1s, left 0.1s;
+        }
         .A {
+            background-image: url('spritesheet.png');
             background-repeat: no-repeat;
             display: block;
         }
@@ -114,6 +107,15 @@
             position: absolute;
             pointer-events: none;
         }
+
+        #chaser {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background-color: transparent;
+    transform: translate(-50%, -50%);
+    transition: top 0.1s, left 0.1s;
+}
     </style>
 </head>
 <body>
@@ -174,8 +176,7 @@
         joystickActive = true;
     }
 
-
-        function calculateDirectionFromJoystick(angle) {
+    function calculateDirectionFromJoystick(angle) {
         const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
 
         if (angleDeg >= 348.75 || angleDeg < 11.25) direction = 'E';
@@ -194,7 +195,7 @@
         else if (angleDeg >= 281.25 && angleDeg < 303.75) direction = 'NNE';
         else if (angleDeg >= 303.75 && angleDeg < 326.25) direction = 'NE';
         else if (angleDeg >= 326.25 && angleDeg < 348.75) direction = 'NEE';
-}
+    }
 
     function updateAnimation(timestamp) {
         if (timestamp - lastAnimationTime > animationInterval) {
