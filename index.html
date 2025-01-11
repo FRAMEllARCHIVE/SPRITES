@@ -218,6 +218,7 @@ function updatePosition() {
     } else if (WASDMovementAngle !== null) {
         velocityX = Math.cos(WASDMovementAngle * Math.PI / 180) * maxSpeed;
         velocityY = Math.sin(WASDMovementAngle * Math.PI / 180) * maxSpeed;
+        joystickActive = true;
     } else {
         velocityX *= (1 - friction);
         velocityY *= (1 - friction);
@@ -377,7 +378,7 @@ function GameForMouse() {
 }
         
 window.addEventListener('mousemove', GameForMouse);
-        
+
 window.addEventListener('keydown', (event) => {
     handleKeyDown(event);
 });
@@ -388,6 +389,7 @@ window.addEventListener('keyup', (event) => {
 
         
 let WASDMovementAngle = null;
+        
 let keysPressed = { W: false, A: false, S: false, D: false };
 
 const keyToAngle = {
