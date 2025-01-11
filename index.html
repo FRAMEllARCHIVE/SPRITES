@@ -378,8 +378,16 @@ function GameForMouse() {
         
 window.addEventListener('mousemove', GameForMouse);
         
-window.addEventListener('keydown', handleKeyDown);
-window.addEventListener('keyup', handleKeyUp);    
+window.addEventListener('keydown', (event) => {
+    console.log('Keydown event fired:', event.key);
+    handleKeyDown(event);
+});
+
+window.addEventListener('keyup', (event) => {
+    console.log('Keyup event fired:', event.key);
+    handleKeyUp(event);
+});
+
         
 let WASDMovementAngle = null;
 let keysPressed = { W: false, A: false, S: false, D: false };
