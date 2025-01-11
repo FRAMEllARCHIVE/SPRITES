@@ -124,14 +124,24 @@
                         user-select: none;
         }
 
+#playerContainer, #chaserContainer {
+    position: absolute;
+    width: 1%; /* Scale to 1% of the game area */
+    height: 1%;
+    transform: translate(-50%, -50%); /* Center the container */
+}
+        
     </style>
 </head>
 <body>
-    <div id="gameArea">
+<div id="gameArea">
+    <div id="playerContainer">
         <div id="player" class="A"></div>
-        <div id="chaser" class="A"></div>
-    
     </div>
+    <div id="chaserContainer">
+        <div id="chaser" class="A"></div>
+    </div>
+</div>
     <div id="joypad">
         <div id="joypadInner"></div>
     </div>
