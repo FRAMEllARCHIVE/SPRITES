@@ -174,7 +174,6 @@
         joystickActive = true;
     }
 
-
         function calculateDirectionFromJoystick(angle) {
         const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
 
@@ -295,8 +294,12 @@ function gameLoop(timestamp) {
             joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
         }
     });
-
-        //chaser logic
+        
+        //friend logic
+        //peer connect
+        //place friend
+        //use monster calculatedirection for animations
+        //monster logic
 let chaserVelocityX = 0, chaserVelocityY = 0;
 const chaserFriction = 0.06;
 let chaserDirection = 'S';
