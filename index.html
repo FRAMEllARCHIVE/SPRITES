@@ -362,6 +362,7 @@ function gameLoop(timestamp) {
     window.addEventListener('gamepaddisconnected', disconnectGamepad);
         
 window.addEventListener('touchstart', (event) => {
+    joypad.style.transition = 'none';
     joypad.classList.add('visible');
 });
 
