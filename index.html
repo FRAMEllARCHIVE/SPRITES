@@ -176,24 +176,59 @@
         joystickActive = true;
     }
 
- function getDirectionFromAngle(angleDeg) {
-    if (angleDeg >= 348.75 || angleDeg < 11.25) return 'E';
-    else if (angleDeg >= 11.25 && angleDeg < 33.75) return 'SEE';
-    else if (angleDeg >= 33.75 && angleDeg < 56.25) return 'SE';
-    else if (angleDeg >= 56.25 && angleDeg < 78.75) return 'SSE';
-    else if (angleDeg >= 78.75 && angleDeg < 101.25) return 'S';
-    else if (angleDeg >= 101.25 && angleDeg < 123.75) return 'SSW';
-    else if (angleDeg >= 123.75 && angleDeg < 146.25) return 'SW';
-    else if (angleDeg >= 146.25 && angleDeg < 168.75) return 'SWW';
-    else if (angleDeg >= 168.75 && angleDeg < 191.25) return 'W';
-    else if (angleDeg >= 191.25 && angleDeg < 213.75) return 'NWW';
-    else if (angleDeg >= 213.75 && angleDeg < 236.25) return 'NW';
-    else if (angleDeg >= 236.25 && angleDeg < 258.75) return 'NNW';
-    else if (angleDeg >= 258.75 && angleDeg < 281.25) return 'N';
-    else if (angleDeg >= 281.25 && angleDeg < 303.75) return 'NNE';
-    else if (angleDeg >= 303.75 && angleDeg < 326.25) return 'NE';
-    else if (angleDeg >= 326.25 && angleDeg < 348.75) return 'NEE';
-}
+function getDirectionFromAngle(angleDeg) {
+    console.log(`getDirectionFromAngle called with angleDeg: ${angleDeg}`);
+    if (angleDeg >= 348.75 || angleDeg < 11.25) {
+        console.log("Returning direction: E");
+        return 'E';
+    } else if (angleDeg >= 11.25 && angleDeg < 33.75) {
+        console.log("Returning direction: SEE");
+        return 'SEE';
+    } else if (angleDeg >= 33.75 && angleDeg < 56.25) {
+        console.log("Returning direction: SE");
+        return 'SE';
+    } else if (angleDeg >= 56.25 && angleDeg < 78.75) {
+        console.log("Returning direction: SSE");
+        return 'SSE';
+    } else if (angleDeg >= 78.75 && angleDeg < 101.25) {
+        console.log("Returning direction: S");
+        return 'S';
+    } else if (angleDeg >= 101.25 && angleDeg < 123.75) {
+        console.log("Returning direction: SSW");
+        return 'SSW';
+    } else if (angleDeg >= 123.75 && angleDeg < 146.25) {
+        console.log("Returning direction: SW");
+        return 'SW';
+    } else if (angleDeg >= 146.25 && angleDeg < 168.75) {
+        console.log("Returning direction: SWW");
+        return 'SWW';
+    } else if (angleDeg >= 168.75 && angleDeg < 191.25) {
+        console.log("Returning direction: W");
+        return 'W';
+    } else if (angleDeg >= 191.25 && angleDeg < 213.75) {
+        console.log("Returning direction: NWW");
+        return 'NWW';
+    } else if (angleDeg >= 213.75 && angleDeg < 236.25) {
+        console.log("Returning direction: NW");
+        return 'NW';
+    } else if (angleDeg >= 236.25 && angleDeg < 258.75) {
+        console.log("Returning direction: NNW");
+        return 'NNW';
+    } else if (angleDeg >= 258.75 && angleDeg < 281.25) {
+        console.log("Returning direction: N");
+        return 'N';
+    } else if (angleDeg >= 281.25 && angleDeg < 303.75) {
+        console.log("Returning direction: NNE");
+        return 'NNE';
+    } else if (angleDeg >= 303.75 && angleDeg < 326.25) {
+        console.log("Returning direction: NE");
+        return 'NE';
+    } else if (angleDeg >= 326.25 && angleDeg < 348.75) {
+        console.log("Returning direction: NEE");
+        return 'NEE';
+    }
+    console.log("Angle out of range, returning undefined");
+    return undefined; 
 
 function calculateDirectionFromJoystick(angle) {
     let angleDeg = (angle * (180 / Math.PI) + 360) % 360;
