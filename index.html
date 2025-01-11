@@ -105,6 +105,7 @@
             justify-content: center;
             align-items: center;
             opacity: 0;
+            transition: opacity 11s ease;
         }
         #joypadInner {
             width: 50px;
@@ -342,7 +343,15 @@ function gameLoop(timestamp) {
 
     window.addEventListener('gamepadconnected', connectGamepad);
     window.addEventListener('gamepaddisconnected', disconnectGamepad);
+        
+    window.addEventListener('touchstart', (event) => {
+        joypad.style.opacity = '1';
+    });
+    window.addEventListener('touchend', (event) => {
+        joypad.style.opacity = '0';
+    });
 
+        
     joypad.addEventListener('touchstart', (event) => {
         joypad.style.opacity = '1';
         updateJoypadCenter();
