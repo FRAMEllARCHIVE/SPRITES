@@ -404,6 +404,11 @@ function handleKeyUp(event) {
     }
 }
 
+function updateJoystickActive() {
+    joystickActive = Object.values(keysPressed).includes(true);
+}
+
+
 function updateWASDMovementAngle() {
     if (keysPressed.W && !keysPressed.A && !keysPressed.S && !keysPressed.D) {
         WASDMovementAngle = 0;
@@ -424,19 +429,7 @@ function updateWASDMovementAngle() {
     calculateDirectionFromJoystick(WASDMovementAngle);
 }
 
-function updateJoystickActive() {
-    joystickActive = Object.values(keysPressed).includes(true);
-}
 
-function WASDcontrols() {
-    WASDMovementAngle = null;
-    calculateDirectionFromJoystick(WASDMovementAngle);
-    joystickActive = false;
-}
-
-
-        
-        
     gameLoop(0);
 </script>
 </body>
