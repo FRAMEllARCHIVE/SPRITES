@@ -218,7 +218,6 @@ function updatePosition() {
     } else if (WASDMovementAngle !== null) {
         velocityX = Math.cos(WASDMovementAngle * Math.PI / 180) * maxSpeed;
         velocityY = Math.sin(WASDMovementAngle * Math.PI / 180) * maxSpeed;
-        joystickActive = true;
     } else {
         velocityX *= (1 - friction);
         velocityY *= (1 - friction);
@@ -387,73 +386,14 @@ window.addEventListener('keyup', (event) => {
     handleKeyUp(event);
 });
 
-        
-let WASDMovementAngle = null;
-        
-let keysPressed = { W: false, A: false, S: false, D: false };
-
-const keyToAngle = {
-    W: 0,
-    A: 270,
-    S: 180,
-    D: 90
-};
-
 function handleKeyDown(event) {
-    const key = event.key.toUpperCase();
-    if (key in keyToAngle) {
-        console.log(`Key pressed: ${key}`);
-        keysPressed[key] = true;
-
-        updateWASDMovementAngle();
-        updateJoystickActive();
-
-        console.log('Updated keysPressed:', keysPressed);
-        console.log('Current WASD movement angle:', WASDMovementAngle);
-    }
 }
 
 function handleKeyUp(event) {
-    const key = event.key.toUpperCase();
-    if (key in keyToAngle) {
-        console.log(`Key released: ${key}`);
-        keysPressed[key] = false;
-
-        updateWASDMovementAngle();
-        updateJoystickActive();
-
-        console.log('Updated keysPressed:', keysPressed);
-        console.log('Current WASD movement angle:', WASDMovementAngle);
-    }
 }
-
-
-
-function updateJoystickActive() {
-    joystickActive = Object.values(keysPressed).includes(true);
-    console.log('Joystick active state:', joystickActive);
-}
-
-
 
 function updateWASDMovementAngle() {
-    if (keysPressed.W && !keysPressed.A && !keysPressed.S && !keysPressed.D) {
-        WASDMovementAngle = 0;
-    } else if (!keysPressed.W && keysPressed.A && !keysPressed.S && !keysPressed.D) {
-        WASDMovementAngle = 270;
-    } else if (!keysPressed.W && !keysPressed.A && keysPressed.S && !keysPressed.D) {
-        WASDMovementAngle = 180;
-    } else if (!keysPressed.W && !keysPressed.A && !keysPressed.S && keysPressed.D) {
-        WASDMovementAngle = 90;
-    } else {
-        let angle = 0;
-        if (keysPressed.W) angle += 0;
-        if (keysPressed.A) angle += 270;
-        if (keysPressed.S) angle += 180;
-        if (keysPressed.D) angle += 90;
-        WASDMovementAngle = angle / Object.values(keysPressed).filter(v => v).length;
-    }
-    calculateDirectionFromJoystick(WASDMovementAngle);
+    calculateDirectionFromJoystick(WASDinputAngle);
 }
 
 
