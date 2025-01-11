@@ -125,22 +125,20 @@
     <div id="joypad">
         <div id="joypadInner"></div>
     </div>
-    
-    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
-    
+
     <script>
-    let player = document.getElementById('player');
-    let joypad = document.getElementById('joypad');
-    let joypadInner = document.getElementById('joypadInner');
-    let directions = { SSW: 'SSW', SW: 'SW', W: 'W', NW: 'NW', N: 'N', NE: 'NE', E: 'E', SEE: 'SEE', SE: 'SE', S: 'S', SWW: 'SWW', NWW: 'NWW', SSE: 'SSE', NNE: 'NNE', NNW: 'NNW', NEE: 'NEE' };
+    const player = document.getElementById('player');
+    const joypad = document.getElementById('joypad');
+    const joypadInner = document.getElementById('joypadInner');
+    const directions = { SSW: 'SSW', SW: 'SW', W: 'W', NW: 'NW', N: 'N', NE: 'NE', E: 'E', SEE: 'SEE', SE: 'SE', S: 'S', SWW: 'SWW', NWW: 'NWW', SSE: 'SSE', NNE: 'NNE', NNW: 'NNW', NEE: 'NEE' };
     let posX = 50, posY = 50;
     let velocityX = 0, velocityY = 0;
-    let friction = 0.06;
-    let maxSpeed = 0.8;
+    const friction = 0.06;
+    const maxSpeed = 0.8;
     let animationFrame = 1;
-    let maxFrames = 3;
+    const maxFrames = 3;
     let idleFrame = 1;
-    let maxIdleFrames = 3;
+    const maxIdleFrames = 3;
     let joypadCenter = { x: 0, y: 0 };
     let joypadRadius = joypad.offsetWidth / 2;
     let isIdle = true;
@@ -149,23 +147,23 @@
     let joystickAngle = 0;
     let joystickDistance = 0;
 
-    let frameRate = 60;
-    let animationFrameRate = 5;
-    let animationInterval = 1000 / animationFrameRate;
+    const frameRate = 60;
+    const animationFrameRate = 5;
+    const animationInterval = 1000 / animationFrameRate;
     let lastAnimationTime = 0;
     let direction = 'S';
 
     let gamepadIndex = null;
 
     function updateJoypadCenter() {
-        let rect = joypad.getBoundingClientRect();
+        const rect = joypad.getBoundingClientRect();
         joypadCenter.x = rect.left + joypad.offsetWidth / 2;
         joypadCenter.y = rect.top + joypad.offsetHeight / 2;
     }
 
     function moveJoypadInner(x, y) {
-        let dx = x - joypadCenter.x;
-        let dy = y - joypadCenter.y;
+        const dx = x - joypadCenter.x;
+        const dy = y - joypadCenter.y;
         joystickDistance = Math.min(Math.sqrt(dx * dx + dy * dy), joypadRadius);
         joystickAngle = Math.atan2(dy, dx);
 
@@ -176,65 +174,27 @@
         joystickActive = true;
     }
 
-function getDirectionFromAngle(angleDeg) {
-    console.log(`getDirectionFromAngle called with angleDeg: ${angleDeg}`);
-    if (angleDeg >= 348.75 || angleDeg < 11.25) {
-        console.log("Returning direction: E");
-        return 'E';
-    } else if (angleDeg >= 11.25 && angleDeg < 33.75) {
-        console.log("Returning direction: SEE");
-        return 'SEE';
-    } else if (angleDeg >= 33.75 && angleDeg < 56.25) {
-        console.log("Returning direction: SE");
-        return 'SE';
-    } else if (angleDeg >= 56.25 && angleDeg < 78.75) {
-        console.log("Returning direction: SSE");
-        return 'SSE';
-    } else if (angleDeg >= 78.75 && angleDeg < 101.25) {
-        console.log("Returning direction: S");
-        return 'S';
-    } else if (angleDeg >= 101.25 && angleDeg < 123.75) {
-        console.log("Returning direction: SSW");
-        return 'SSW';
-    } else if (angleDeg >= 123.75 && angleDeg < 146.25) {
-        console.log("Returning direction: SW");
-        return 'SW';
-    } else if (angleDeg >= 146.25 && angleDeg < 168.75) {
-        console.log("Returning direction: SWW");
-        return 'SWW';
-    } else if (angleDeg >= 168.75 && angleDeg < 191.25) {
-        console.log("Returning direction: W");
-        return 'W';
-    } else if (angleDeg >= 191.25 && angleDeg < 213.75) {
-        console.log("Returning direction: NWW");
-        return 'NWW';
-    } else if (angleDeg >= 213.75 && angleDeg < 236.25) {
-        console.log("Returning direction: NW");
-        return 'NW';
-    } else if (angleDeg >= 236.25 && angleDeg < 258.75) {
-        console.log("Returning direction: NNW");
-        return 'NNW';
-    } else if (angleDeg >= 258.75 && angleDeg < 281.25) {
-        console.log("Returning direction: N");
-        return 'N';
-    } else if (angleDeg >= 281.25 && angleDeg < 303.75) {
-        console.log("Returning direction: NNE");
-        return 'NNE';
-    } else if (angleDeg >= 303.75 && angleDeg < 326.25) {
-        console.log("Returning direction: NE");
-        return 'NE';
-    } else if (angleDeg >= 326.25 && angleDeg < 348.75) {
-        console.log("Returning direction: NEE");
-        return 'NEE';
-    }
-    console.log("Angle out of range, returning undefined");
-    return undefined; 
 
-function calculateDirectionFromJoystick(angle) {
-    let angleDeg = (angle * (180 / Math.PI) + 360) % 360;
-    return getDirectionFromAngle(angleDeg);
+        function calculateDirectionFromJoystick(angle) {
+        const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
+
+        if (angleDeg >= 348.75 || angleDeg < 11.25) direction = 'E';
+        else if (angleDeg >= 11.25 && angleDeg < 33.75) direction = 'SEE';
+        else if (angleDeg >= 33.75 && angleDeg < 56.25) direction = 'SE';
+        else if (angleDeg >= 56.25 && angleDeg < 78.75) direction = 'SSE';
+        else if (angleDeg >= 78.75 && angleDeg < 101.25) direction = 'S';
+        else if (angleDeg >= 101.25 && angleDeg < 123.75) direction = 'SSW';
+        else if (angleDeg >= 123.75 && angleDeg < 146.25) direction = 'SW';
+        else if (angleDeg >= 146.25 && angleDeg < 168.75) direction = 'SWW';
+        else if (angleDeg >= 168.75 && angleDeg < 191.25) direction = 'W';
+        else if (angleDeg >= 191.25 && angleDeg < 213.75) direction = 'NWW';
+        else if (angleDeg >= 213.75 && angleDeg < 236.25) direction = 'NW';
+        else if (angleDeg >= 236.25 && angleDeg < 258.75) direction = 'NNW';
+        else if (angleDeg >= 258.75 && angleDeg < 281.25) direction = 'N';
+        else if (angleDeg >= 281.25 && angleDeg < 303.75) direction = 'NNE';
+        else if (angleDeg >= 303.75 && angleDeg < 326.25) direction = 'NE';
+        else if (angleDeg >= 326.25 && angleDeg < 348.75) direction = 'NEE';
 }
-
 
     function updateAnimation(timestamp) {
         if (timestamp - lastAnimationTime > animationInterval) {
@@ -274,12 +234,12 @@ function calculateDirectionFromJoystick(angle) {
     function handleGamepadInput() {
         if (gamepadIndex === null) return;
 
-        let gamepad = navigator.getGamepads()[gamepadIndex];
+        const gamepad = navigator.getGamepads()[gamepadIndex];
         if (!gamepad) return;
 
-        let threshold = 0.2;
-        let axisX = gamepad.axes[0];
-        let axisY = gamepad.axes[1];
+        const threshold = 0.2;
+        const axisX = gamepad.axes[0];
+        const axisY = gamepad.axes[1];
 
         if (Math.abs(axisX) > threshold || Math.abs(axisY) > threshold) {
             joystickAngle = Math.atan2(axisY, axisX);
@@ -335,33 +295,43 @@ function gameLoop(timestamp) {
             joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
         }
     });
-        
-        //friend logic
-        //peer connect
-        //place friend
-        //use monster calculatedirection for animations
-        
-        //monster logic
+
+        //chaser logic
 let chaserVelocityX = 0, chaserVelocityY = 0;
-let chaserFriction = 0.06;
+const chaserFriction = 0.06;
 let chaserDirection = 'S';
 let chaserAnimationFrame = 1;
 let lastChaserAnimationTime = 0;
-let chaser = document.getElementById('chaser');
+const chaser = document.getElementById('chaser');
 let chaserX = 20, chaserY = 20;
-let chaserSpeed = 0.02;
-
+const chaserSpeed = 0.02;
 
 function calculateDirectionFromVelocity(vx, vy) {
-    let angle = Math.atan2(vy, vx);
-    let angleDeg = (angle * (180 / Math.PI) + 360) % 360;
-    return getDirectionFromAngle(angleDeg);
+    const angle = Math.atan2(vy, vx);
+    const angleDeg = (angle * (180 / Math.PI) + 360) % 360;
+
+    if (angleDeg >= 348.75 || angleDeg < 11.25) return 'E';
+    else if (angleDeg >= 11.25 && angleDeg < 33.75) return 'SEE';
+    else if (angleDeg >= 33.75 && angleDeg < 56.25) return 'SE';
+    else if (angleDeg >= 56.25 && angleDeg < 78.75) return 'SSE';
+    else if (angleDeg >= 78.75 && angleDeg < 101.25) return 'S';
+    else if (angleDeg >= 101.25 && angleDeg < 123.75) return 'SSW';
+    else if (angleDeg >= 123.75 && angleDeg < 146.25) return 'SW';
+    else if (angleDeg >= 146.25 && angleDeg < 168.75) return 'SWW';
+    else if (angleDeg >= 168.75 && angleDeg < 191.25) return 'W';
+    else if (angleDeg >= 191.25 && angleDeg < 213.75) return 'NWW';
+    else if (angleDeg >= 213.75 && angleDeg < 236.25) return 'NW';
+    else if (angleDeg >= 236.25 && angleDeg < 258.75) return 'NNW';
+    else if (angleDeg >= 258.75 && angleDeg < 281.25) return 'N';
+    else if (angleDeg >= 281.25 && angleDeg < 303.75) return 'NNE';
+    else if (angleDeg >= 303.75 && angleDeg < 326.25) return 'NE';
+    else if (angleDeg >= 326.25 && angleDeg < 348.75) return 'NEE';
 }
         
 function updateChaser(timestamp) {
-    let dx = posX - chaserX;
-    let dy = posY - chaserY;
-    let distance = Math.sqrt(dx * dx + dy * dy);
+    const dx = posX - chaserX;
+    const dy = posY - chaserY;
+    const distance = Math.sqrt(dx * dx + dy * dy);
 
     if (distance > 0.5) {
         chaserVelocityX += (dx / distance) * chaserSpeed;
