@@ -268,6 +268,7 @@
 function gameLoop(timestamp) {
     handleGamepadInput();
     updatePosition();
+    updateWASDPosition();
     updateChaser(timestamp);
     updateAnimation(timestamp);
     requestAnimationFrame(gameLoop);
@@ -372,6 +373,34 @@ function GameForMouse() {
 }
 window.addEventListener('mousemove', GameForMouse);
         
+let keys = { W: false, A: false, S: false, D: false };
+
+function handleKeyDown(event) {
+    if (event.key === 'W') keys.W = true;
+    if (event.key === 'A') keys.A = true;
+    if (event.key === 'S') keys.S = true;
+    if (event.key === 'D') keys.D = true;
+}
+
+function handleKeyUp(event) {
+    if (event.key === 'W') keys.W = false;
+    if (event.key === 'A') keys.A = false;
+    if (event.key === 'S') keys.S = false;
+    if (event.key === 'D') keys.D = false;
+}
+
+function updateWASDPosition() {
+    if (keys.W) posY -= 0.5;
+    if (keys.A) posX -= 0.5;
+    if (keys.S) posY += 0.5;
+    if (keys.D) posX += 0.5;
+
+    posX = Math.max(0, Math.min(100, posX));
+    posY = Math.max(0, Math.min(100, posY));
+
+    player.style.left = `${posX}%`;
+    player.style.top = `${posY}%`;
+}
 
         
 gameLoop(0);
