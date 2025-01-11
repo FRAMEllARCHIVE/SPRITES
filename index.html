@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -156,8 +155,6 @@
     let lastAnimationTime = 0;
     let direction = 'S';
 
-    let keysPressed = {};
-
     let gamepadIndex = null;
 
     function updateJoypadCenter() {
@@ -214,53 +211,29 @@
         }
     }
 
-    function updatePosition() {
-        if (joystickActive) {
-            velocityX = Math.cos(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
-            velocityY = Math.sin(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
-        } else {
-            // WASD Movement Handling
-            if (keysPressed['W']) velocityY = -maxSpeed;
-            if (keysPressed['S']) velocityY = maxSpeed;
-            if (keysPressed['A']) velocityX = -maxSpeed;
-            if (keysPressed['D']) velocityX = maxSpeed;
-            
-            // Apply friction
-            velocityX *= (1 - friction);
-            velocityY *= (1 - friction);
-        }
-
-        posX += velocityX;
-        posY += velocityY;
-
-        posX = Math.max(0, Math.min(100, posX));
-        posY = Math.max(0, Math.min(100, posY));
-
-        player.style.left = `${posX}%`;
-        player.style.top = `${posY}%`;
-
-        isIdle = !joystickActive && !Object.values(keysPressed).includes(true) && Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
+function updatePosition() {
+    if (joystickActive) {
+        velocityX = Math.cos(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
+        velocityY = Math.sin(joystickAngle) * (joystickDistance / joypadRadius) * maxSpeed;
+    } else if (WASDMovementAngle !== null) {
+        velocityX = Math.cos(WASDMovementAngle * Math.PI / 180) * maxSpeed;
+        velocityY = Math.sin(WASDMovementAngle * Math.PI / 180) * maxSpeed;
+    } else {
+        velocityX *= (1 - friction);
+        velocityY *= (1 - friction);
     }
 
-    window.addEventListener('keydown', (event) => {
-        handleKeyDown(event);
-    });
+    posX += velocityX;
+    posY += velocityY;
 
-    window.addEventListener('keyup', (event) => {
-        handleKeyUp(event);
-    });
+    posX = Math.max(0, Math.min(100, posX));
+    posY = Math.max(0, Math.min(100, posY));
 
-    function handleKeyDown(event) {
-        if (event.key === 'W' || event.key === 'A' || event.key === 'S' || event.key === 'D') {
-            keysPressed[event.key] = true;
-        }
-    }
+    player.style.left = `${posX}%`;
+    player.style.top = `${posY}%`;
 
-    function handleKeyUp(event) {
-        if (event.key === 'W' || event.key === 'A' || event.key === 'S' || event.key === 'D') {
-            keysPressed[event.key] = false;
-        }
-    }
+    isIdle = !joystickActive && !Object.values(keysPressed).includes(true) && Math.abs(velocityX) < 0.01 && Math.abs(velocityY) < 0.01;
+}
 
 
     function handleGamepadInput() {
@@ -301,6 +274,7 @@
 function gameLoop(timestamp) {
     handleGamepadInput();
     updatePosition();
+    updateChaser(timestamp);
     updateAnimation(timestamp);
     requestAnimationFrame(gameLoop);
 }
@@ -326,6 +300,71 @@ function gameLoop(timestamp) {
             joypadInner.style.top = `${joypadRadius - joypadInner.offsetHeight / 2}px`;
         }
     });
+
+        //chaser logic
+let chaserVelocityX = 0, chaserVelocityY = 0;
+let chaserFriction = 0.06;
+let chaserDirection = 'S';
+let chaserAnimationFrame = 1;
+let lastChaserAnimationTime = 0;
+let chaser = document.getElementById('chaser');
+let chaserX = 20, chaserY = 20;
+let chaserSpeed = 0.02;
+
+function calculateDirectionFromVelocity(vx, vy) {
+    let angle = Math.atan2(vy, vx);
+    let angleDeg = (angle * (180 / Math.PI) + 360) % 360;
+
+    if (angleDeg >= 348.75 || angleDeg < 11.25) return 'E';
+    else if (angleDeg >= 11.25 && angleDeg < 33.75) return 'SEE';
+    else if (angleDeg >= 33.75 && angleDeg < 56.25) return 'SE';
+    else if (angleDeg >= 56.25 && angleDeg < 78.75) return 'SSE';
+    else if (angleDeg >= 78.75 && angleDeg < 101.25) return 'S';
+    else if (angleDeg >= 101.25 && angleDeg < 123.75) return 'SSW';
+    else if (angleDeg >= 123.75 && angleDeg < 146.25) return 'SW';
+    else if (angleDeg >= 146.25 && angleDeg < 168.75) return 'SWW';
+    else if (angleDeg >= 168.75 && angleDeg < 191.25) return 'W';
+    else if (angleDeg >= 191.25 && angleDeg < 213.75) return 'NWW';
+    else if (angleDeg >= 213.75 && angleDeg < 236.25) return 'NW';
+    else if (angleDeg >= 236.25 && angleDeg < 258.75) return 'NNW';
+    else if (angleDeg >= 258.75 && angleDeg < 281.25) return 'N';
+    else if (angleDeg >= 281.25 && angleDeg < 303.75) return 'NNE';
+    else if (angleDeg >= 303.75 && angleDeg < 326.25) return 'NE';
+    else if (angleDeg >= 326.25 && angleDeg < 348.75) return 'NEE';
+}
+        
+function updateChaser(timestamp) {
+    let dx = posX - chaserX;
+    let dy = posY - chaserY;
+    let distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance > 0.5) {
+        chaserVelocityX += (dx / distance) * chaserSpeed;
+        chaserVelocityY += (dy / distance) * chaserSpeed;
+    }
+
+    chaserVelocityX *= (1 - chaserFriction);
+    chaserVelocityY *= (1 - chaserFriction);
+
+    chaserX += chaserVelocityX;
+    chaserY += chaserVelocityY;
+
+    chaserX = Math.max(0, Math.min(100, chaserX));
+    chaserY = Math.max(0, Math.min(100, chaserY));
+
+    chaser.style.left = `${chaserX}%`;
+    chaser.style.top = `${chaserY}%`;
+
+    if (Math.abs(chaserVelocityX) > 0.01 || Math.abs(chaserVelocityY) > 0.01) {
+        chaserDirection = calculateDirectionFromVelocity(chaserVelocityX, chaserVelocityY);
+    }
+
+    if (timestamp - lastChaserAnimationTime > animationInterval) {
+        chaser.className = `A ${directions[chaserDirection]}${chaserAnimationFrame}`;
+        chaserAnimationFrame = (chaserAnimationFrame % maxFrames) + 1;
+        lastChaserAnimationTime = timestamp;
+    }
+}
         
 let mouseDetected = false;
         
@@ -338,6 +377,25 @@ function GameForMouse() {
 }
         
 window.addEventListener('mousemove', GameForMouse);
+
+window.addEventListener('keydown', (event) => {
+    handleKeyDown(event);
+});
+
+window.addEventListener('keyup', (event) => {
+    handleKeyUp(event);
+});
+
+function handleKeyDown(event) {
+}
+
+function handleKeyUp(event) {
+}
+
+function updateWASDMovementAngle() {
+    calculateDirectionFromJoystick(WASDinputAngle);
+}
+
 
     gameLoop(0);
 </script>
