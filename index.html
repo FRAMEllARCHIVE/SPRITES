@@ -6,7 +6,6 @@
     <title>Animation Controller</title>
     <style>
         body {
-            height: calc(100vh - env(safe-area-inset-top));
             display: flex;
             justify-content: center;
             align-items: center;
@@ -139,6 +138,14 @@
 
     <script>
 
+function adjustHeight() {
+    document.body.style.height = window.innerHeight + "px";
+}
+
+window.addEventListener("load", adjustHeight);
+window.addEventListener("resize", adjustHeight);
+
+        
 document.addEventListener("touchstart", function(event) {
     event.preventDefault();
 }, { passive: false });
