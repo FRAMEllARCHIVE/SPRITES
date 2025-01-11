@@ -367,6 +367,7 @@ window.addEventListener('touchstart', (event) => {
 });
 
 window.addEventListener('touchend', (event) => {
+    joypad.style.transition = 'opacity 11s ease-out';
     joypad.classList.remove('visible');
 });
    
