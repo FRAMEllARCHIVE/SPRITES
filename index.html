@@ -106,7 +106,7 @@
     justify-content: center;
     align-items: center;
     opacity: 0;
-    transition: opacity 11s ease-out;
+    transition: opacity 2.2s;
     user-select: none;
 }
 
@@ -372,7 +372,6 @@ window.addEventListener('touchend', (event) => {
 });
    
     joypad.addEventListener('touchstart', (event) => {
-        joypad.style.opacity = '1';
         updateJoypadCenter();
         moveJoypadInner(event.touches[0].clientX, event.touches[0].clientY);
     });
